@@ -11,6 +11,14 @@ INSERT Boolean(SELECT bool FROM azeroth WHERE bool IS Boolean AND bool.id = ”b
 Úgy hozunk létre boolean változót, hogy egy másik boolean változó értékére mutat, így ha az változik, akkor ez is változni fog.
 Az ilyen kifelyezések Boolean(true) vagy Number(1) ezek egy ilyen objektumot adnak vissza.
 
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.5]{images/types}
+    \caption{A lekérdezőnyelv alaptípusai}
+    \label{fig:types}
+\end{center}
+\end{figure}
+
 *Number: Valós vagy egész szám 4 byteon való tárolására alkalmas
 ADD Number(1.2) INTO azeroth;  /*Lebegőpontos szám létrehozása*/
 ADD Number(12) INTO azeroth;  /*Egész szám létrehozása.*/
@@ -253,6 +261,14 @@ Ha ennek a selectnek több értékű halmaz eredménye lesz, akkor hiba dobódik
 SELECT mine From azeroth;  /*A mine egy kifejezés, amin keresztül elérhetjük az összes  azeroth mapen lévő objektumot. A Select után csak egy ilyen kifejezés állhat. Ez azt csinálja, hogy visszaad egy halmazt, amiben minden elem(point,rectangle,saját definiált class) benne van szűkítés nélkül.*/
 - SELECT mine.x from azeroth;  /*Ez visszaadja azon elemek halmazát az azeroth mapről, melyeknek van x attribútumuk, és azoknak az attribútumoknak a halmazát adná(Tehát itt number x-ek lennének az eredmény halmazban.)*/
 
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.5]{images/selection}
+    \caption{}
+    \label{fig:selection}
+\end{center}
+\end{figure}
+
 - Min(SELECT mine.x from azeroth);  /*Kiválasztja a legkisebb x attribútumot a térképről.*/
 A min(), max() függvények egy halmazt várnak, és abból a halmazból visszaadják a legkisebb vagy legnagyobb elemet. Olyan halmazt várnak, melyek elemei csak rendezhető elemeket tartalmaznak és azokból is mind ugyan olyan(Csak számokat vagy csak stringeket tartalmaz).
 Select mine.x from azeroth;  Ilyenkor a mine.x  azt jelenti, hogy az összes x attribútumot gyűjti ki.
@@ -392,6 +408,13 @@ WHERE mine COLLIDE Point(20, 30);
 Az összes objektumot visszaadja, ami tartalmazza a 20,30 pontot. 
 Mivel az adatbázisban üzleti logikát is tárolhatunk, azon objektumok pedig nem feltétlenül kell, hogy rendelkezzenek x, y, width, height attribútumokkal, ezért amikor a lekérdezés lefut tud szelektálni, hogy amely objektumok nem rendelkeznek a fenti attribútumokkal, azok az eredmény listába bele sem kerülhetnek.
 
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.5]{images/collision}
+    \caption{}
+    \label{fig:collision}
+\end{center}
+\end{figure}
 
 Az ütközés vizsgálatnak van egy másik fajtája is, amikor mozogni szeretnék egy entitással, és azt szeretnénk megvizsgálni, hogy egyik pontból a másikba mozogva ütközik-e valamely adatbázisban tárolt elemmel.
 
@@ -413,6 +436,14 @@ Ez a lekérdezés annyival másabb a fentinél, hogy itt nem mindkétt koordiná
 SELECT mine.closestPath(Point(10,10)) FROM azeroth WHERE mine.id = ”asd11”
 /*Visszaadja Pathok halmazát, melyek azon bányákhoz tartotnak melyek id-je asd11(jobb esetben ebből egy van). Hogy a Path hány Nodeból áll az még kérdéses.*/
 A closestPath nem szerepelhet WHERE kifejezés után!
+
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.5]{images/path}
+    \caption{}
+    \label{fig:path}
+\end{center}
+\end{figure}
 
 \subsection{Kitöltés}
 
@@ -454,6 +485,14 @@ SELECT mine
 FROM azeroth
 WHERE mine CLOSEST TO (10, 10) AND mine.distanceFrom(20, 20) > 30;
 A fenti lekérdezés kiválasztja azokat az elemeket a mapről, amelyek legközelebb vannak a (10,10) ponthoz, és a  (20,20) ponttól 30 ponttól nagyobb távra vannak.
+
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.5]{images/distance}
+    \caption{Távolság számítása}
+    \label{fig:distance}
+\end{center}
+\end{figure}
 
 A fekete vonal a távolság vektor.
 
