@@ -1,8 +1,31 @@
 \Chapter{Domain specifikus lekérdezőnyelvek}
 
+A DSL egy olyan nyelv, amely egy adott feladatkör problémáinak megoldására lett létrehozva. Magasabb absztrakciós szinten lehet vele a problémákat megfogalmazni.
+Elrejt alacsony szintű műveleteket, például változók felszabadítása.
+
 TODO: Ide azt kellene leírni, hogy
 \begin{itemize}
 \item Milyen más területeken van szükség még domain specifikus nyelvekre? (Például beágyazott szkriptnyelvek, geográfiai adatok kezelése.)
+
+
 \item A játékfejlesztésben milyen problémák vannak, amelyekre egy adatbázismotor megoldást tud adni?
+
+Térképadatok mellett, az üzleti logika perzisztens tárolását is lehetővé teszi.
+
+A játékfejlesztésben az ütközés vizsgálat megoldása amennyire fontos feladat, oly annyira nehéz is. Hogyan észleljük az ütközést és mi történjen ennek hatására?
+Ezen problémákkal nem kell a játékfejlesztőnek foglalkoznia, ezeket nyelvi szinten szolgáltatásként igénybe vehetik az adatbázismotortól.
+
+Az ütközésvizsgálat mellett az útvonal tervezés sem triviális feladat. Legrövidebb út meghatározása két pont között úgy, hogy közben a térképen lévő entitásokat kikerülje.
+
+A térkép felépítése nem a programozó feladata, ő lekérdezésekkel létrehozhatja azt.
+
+Entitások közötti távolság kiszámítása sem az üzleti logika fejlesztőinek feladata, az adatbázismotor elvégzi ezt is helyettük.
+
+
+
 \item Hogyan integrálható be egy ilyen szoftverkomponens/szoftvereszköz a fejlesztési folyamatba?
+1. Külső (external) DSL: Szintaktikája eltér a szoftver megírásához használt programozási nyelvétől. A külső DSL szintaktikája lehet saját fejlesztésű, vagy épülhet egy szabványos formátumra, például XML-re.
+Példák: reguláris kifejezések, SQL.
+
+2. Belső (internal) DSL: A befogadó nyelv egy kis részhalmazát használja, jellemzően a programozási eszközök egy szűk körére szorítkozik, vagy a nyelvet sajátos stílusban használja.
 \end{itemize}

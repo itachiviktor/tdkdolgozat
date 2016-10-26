@@ -1,2 +1,15 @@
 \Chapter{Grafikus szerkesztőeszköz}
 
+\section{Az editor funkciói}
+
+\begin{itemize}
+\item Admin felület: Ennek a grafikus felületnek az a célja, hogy az
+adatbázissal kapcsolatos műveleteket grafikus felületen kezelhessük, nem pedig konzolos parancsok beírásával.
+\item Térkép szerkesztő: Grafikus felületen összerakhatjuk a játékban szereplő térképet, és a háttérben ezeket a lekérdezéseket az editor adja ki.
+\item Debug eszköz: Beírhatunk lekérdezéseket is a szerkesztőbe, és a lekérdezés eredményét rögtön láthatjuk is a térképen. Ha elemek kijelölése volt a lekérdezésben, akkor a térképen piros keretet rak az eredményhalmazban szereplő entitások köré.
+	
+\end{itemize}
+
+\section{Implementáció}
+
+A grafikus szerkesztőeszközt is Java nyelven implementáltam. Itt a szerkesztő az adatbázismotort könyvtárként foglalja magába. Az editor az egy egyszerű Swinges alkalmazásként lett megvalósítva. 

@@ -1,7 +1,55 @@
 \Chapter{Az adatbázismotor felépítése és működése}
 
-Számos szolgáltatást biztosít az adatbázismotor a felhasználók számára:
+\section{Java implementáció}
+
+Azért a Java programozási nyelvre esett a választás, mert platformfüggetlen megoldást biztosít, illetve ezt a nyelvet már több éve tanulom, ebben van a legmagabiztosabb tudásom.
+
+Az adatok tárolása: A tárolandó adatokat JSON fájlba szerveztem. Mint opció felmerült még az XML és a PostgreSQL is.
+Az XML-lel szemben a tömörsége miatt előnyösebb a használata, a PostgreSQL pedig még plusz egy függőség lenne az adatbázismotor használatához a javan kívül, ezt pedig nem szerettem volna.
+
+
+\section{Lekérdezés objektumok}
+
+Az adatbázismotorhoz a beérkező lekérdezés stringként jön át, ezt a tokenizer feldolgozza, és minden csomopontnál meghív egy metódust, ami a lekérdezés objektumot építi fel. A lekérdezés objektum felépítése után meghívódik annak execute metódus, ami végrehajta azt.
+
+\section{A SELECT lekérdezés objektum}
+
+A legnehezebb feladat ennek az implementálása volt.
+
+\begin{sql}
+	SELECT mine FROM azeroth WHERE mine.x = 10 AND mine.y < 20;
+\end{sql}
+
+A WHERE feltétel megadása és kiértékelése a legösszetettebb.
+A megoldás bináris fán való ábrázolás jelentette, kiértékeléskor postorder bejárással iterálunk végig a fán, ahogy a \ref{fig:postorder}. ábrán látható.
+A fa levelein 2 operandus és egy operátor található, aminek a kiértékelését követően egy logikai értéket kapunk.
+A feltételt megvizsgálja a SELECT lekérdezés objektum minden objektumra, és amelyikre igaz a feltétel, azt bele rakja az eredmény listába.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.1]{images/postorder}
+		\caption{WHERE feltétel kiértékelése postorder fa bejárással}
+		\label{fig:postorder}
+	\end{center}
+\end{figure}
+
+\section{Az adatbázismotor és a driver kapcsolata}
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.1]{images/database}
+		\caption{A komponensek együttműködés}
+		\label{fig:database}
+	\end{center}
+\end{figure}
+
+Az adatbázis motor és a Driver között a kommunikáció is JSON alapú, így lehetséges az, hogy a Driver és az adatbázismotor más nyelven legyen implementálva. Számítógépes játékokat implementálhatnak C, C++, C#, Java, stb nyelveken, és ahhoz, hogy mindegyikkel kompatibilis legyen az adatbázismotor, ahhoz rosszabb esetben arra lenne szükség, hogy a motort minden nyelven implementáljuk. Ez nagyon sok munkabefektetést jelente, ehelyett csak egy drivert kell implementálni ezen nyelvekhez, amely kommunikál az adatbázis motorral. A projektre nézve a későbbiekben nem csak Java nyelven írt drivert szeretnénk, hanem C++ és C# is a tervek között van.
+
+Az adatbázismotor Parser komponense előállítja a lekérdezés objektumot, aminek execute metódusát végrehajtja, és ennek eredménye SELECT esetén egy lista ami objektumokat tartalmaz. Ezt a listát átadjuk a JSON Serializer komponensnek, ami előállítja ebből a listából a JSON-t, amit továbbít a Drivernek, aminek a JSON Deserializer komponense foglya feldolgozni, és előállít belőle egy eredmény listát. A Driver a kliens program számára már értelmezhető formában adja vissza az eredmény listát. Ez a körfolyamat játszódik le minden lekérdezés esetén.
 
 \section{Számítások optimalizálása}
 
-Levenni a terhet a felhasználó válláról, hogy optimalizálnia kelljen a térkép műveleteket. Térképfelosztás, pályaelem összevonás, ezekkel neki nem kell foglalkoznia.(Ez jövőbeli terv)
+Az adatbázismotor feladata levenni a terhet a felhasználó válláról, 
+optimalizált algoritmusokkal támogatni a lekérdezéseket. Térképfelosztás, pályaelem összevonás, ezek mind olyan feladatok,
+amelyek a térképműveletek gyorsabb végrehajtását idézik elő.
+Mivel a dolgozatnak egyenlőre nem célja, hogy a piacon versenyképes szoftver legyen, ezért az optimalizálás nem került bele a dolgozatba.

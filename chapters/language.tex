@@ -2,18 +2,19 @@
 
 \section{Alaptípusok}
 
-- Boolean: Logikai adattípus.
-INSERT Boolean() INTO azeroth; 
-Ha paraméter nélkül hozzuk létre, akkor autómatikusan false értéket ad az adatbázisban tárolt adatok listájához.
+\begin{itemize}
+
+\item Boolean: Logikai adattípus.
+ Ha paraméter nélkül hozzuk létre, akkor autómatikusan false értéket ad az adatbázisban tárolt adatok listájához.
 
 \begin{sql}
+INSERT Boolean() INTO azeroth;
 INSERT Boolean(true) INTO azeroth; 
 INSERT Boolean(false) INTO azeroth;
 INSERT Boolean(SELECT bool FROM azeroth WHERE bool IS Boolean AND bool.id = "bool11") INTO azeroth;
 \end{sql}
 
-Úgy hozunk létre boolean változót, hogy egy másik boolean változó értékére mutat, így ha az változik, akkor ez is változni fog.
-Az ilyen kifelyezések Boolean(true) vagy Number(1) ezek egy ilyen objektumot adnak vissza.
+
 
 \begin{figure}[htb]
 \begin{center}
@@ -23,183 +24,187 @@ Az ilyen kifelyezések Boolean(true) vagy Number(1) ezek egy ilyen objektumot ad
 \end{center}
 \end{figure}
 
-*Number: Valós vagy egész szám 4 byteon való tárolására alkalmas
+\item Number: Valós vagy egész szám 4 byteon való tárolására alkalmas
 \begin{sql}
-ADD Number(1.2) INTO azeroth;  /*Lebegőpontos szám létrehozása*/
-ADD Number(12) INTO azeroth;  /*Egész szám létrehozása.*/
-ADD Number(SELECT number FROM azeroth WHERE number IS Number AND number.id = "numberasd11") INTO azeroth; /*Ez egy másik Number objektumra mutat.*/
-ADD Number(SELECT number FROM azeroth WHERE number HAS x AND number.x IS Number AND number.id = "asd11") INTO azeroth;
+INSERT Number(1.2) INTO azeroth;
+INSERT Number(12) INTO azeroth;
+INSERT Number(SELECT number FROM azeroth WHERE number IS Number AND number.id = "numberasd11") INTO azeroth; /*Ez egy másik Number objektumra mutat.*/
+INSERT Number(SELECT number FROM azeroth WHERE number HAS x AND number.x IS Number AND number.id = "num11") INTO azeroth;
 \end{sql}
 
-/*Itt azt csinálom, hogy olyan Number objektumot adok a térképhez, ami az asd11 id-jű elem(ez lehet akár mine is) x attribútumára mutat, tehát ha az megváltozik, akkor ez az újonnan hozzáadott Number is megfog arra változni.*/
+Itt azt csinálom, hogy olyan Number objektumot adok a térképhez, ami a num11 id-jű elem(ez lehet akár mine is) x attribútumára mutat, tehát ha az megváltozik, akkor ez az újonnan hozzáadott Number is megfog arra változni.
 
 \begin{sql}
-ADD Number(Number(11)) INTO azeroth;
+INSERT Number(Number(11)) INTO azeroth;
 \end{sql}
 
-*String: Szöveg tárolása.
+\item String: Szöveg tárolása.
 
 \begin{sql}
-ADD String("alma") INTO azeroth;
-ADD String(SELECT string FROM azeroth WHERE string IS String AND string.id="stringasd11") INTO azeroth;
-ADD String(String("körte")) INTO azeroth;
+INSERT String("alma") INTO azeroth;
+INSERT String(SELECT string FROM azeroth WHERE string IS String AND string.id="stringasd11") INTO azeroth;
+INSERT String(String("körte")) INTO azeroth;
 \end{sql}
 
-/*Ez a megoldás is járható út, hisz a String("alma") kifejezés az visszatér egy új String példánnyal, aminek az értéke „alma".*/
+Ez a megoldás is járható út, hisz a String("alma") kifejezés az visszatér egy új String példánnyal, aminek az értéke „alma".
 
-*Vector: Irány tárolását teszi lehetővé.
+\item Vector: Irány tárolását teszi lehetővé.
 
 \begin{sql}
-ADD Vector(10, 20) INTO azeroth;
-ADD Vector(Number(10), Number(20)) INTO azeroth;
-ADD Vector(Number(10), 20) INTO azeroth;
-ADD Vector(10, Number(20)) INTO azeroth;
-ADD Vector(SELECT vector FROM azeroth WHERE vector IS Vector AND vector.id="vetorasd11") INTO azeroth;
+INSERT Vector(10, 20) INTO azeroth;
+INSERT Vector(Number(10), Number(20)) INTO azeroth;
+INSERT Vector(Number(10), 20) INTO azeroth;
+INSERT Vector(10, Number(20)) INTO azeroth;
+INSERT Vector(SELECT vector FROM azeroth WHERE vector IS Vector AND vector.id="vetorasd11") INTO azeroth;
 \end{sql}
 
-/*Ilyenkor egy másik Vector objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.*/
+Ilyenkor egy másik Vector objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
 
 \begin{sql}
-ADD Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
+INSERT Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
 \end{sql}
 
-/*Ilyenkor a vector dx attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.*/
+Ilyenkor a vector dx attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
 
 \begin{sql}
-ADD Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
+INSERT Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
 \end{sql}
 
-/*Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.*/
+Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
 
 \begin{sql}
-ADD Vector(Vector(10, 20)) INTO azeroth;
+INSERT Vector(Vector(10, 20)) INTO azeroth;
 \end{sql}
 
-*Point: Egy pont, melynek nincs iránya. Két Number típust tartalmaz(x,y).
+\item Point: Egy pont, melynek nincs iránya. Két Number típust tartalmaz(x,y).
 
 \begin{sql}
-ADD Point(10, 20) INTO azeroth;
-ADD Point(Number(10), Number(20)) INTO azeroth;
-ADD Point(Number(10), 20) INTO azeroth;
-ADD Point(10, Number(20)) INTO azeroth;
-ADD Point(SELECT point FROM azeroth WHERE point IS Point AND point.id="pointasd11") INTO azeroth;
+INSERT Point(10, 20) INTO azeroth;
+INSERT Point(Number(10), Number(20)) INTO azeroth;
+INSERT Point(Number(10), 20) INTO azeroth;
+INSERT Point(10, Number(20)) INTO azeroth;
+INSERT Point(SELECT point FROM azeroth WHERE point IS Point AND point.id="pointasd11") INTO azeroth;
 \end{sql}
 
-/*Ilyenkor egy másik Point objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.*/
+Ilyenkor egy másik Point objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
 
 \begin{sql}
-ADD Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
+INSERT Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
 \end{sql}
 
-/*Ilyenkor a point x attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.*/
+Ilyenkor a point x attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
 \begin{sql}
-ADD Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
+INSERT Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
 \end{sql}
 
-/*Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.*/
+Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
 \begin{sql}
-ADD Point(Point(10, 10)) INTO azeroth;
+INSERT Point(Point(10, 10)) INTO azeroth;
 \end{sql}
 
-*Dimension: Egy szélesség és egy magasság number értéket tárol.
+\item Dimension: Egy szélesség és egy magasság number értéket tárol.
 \begin{sql}
-ADD Dimension(10, 20) INTO azeroth;
-ADD Dimension(Number(10), Number(20)) INTO azeroth;
-ADD Dimension(Number(10), 20) INTO azeroth;
-ADD Dimension(10, Number(20)) INTO azeroth;
-ADD Dimension(SELECT dimension FROM azeroth WHERE dimension IS Dimension AND dimension.id="dimensionasd11") INTO azeroth;
+INSERT Dimension(10, 20) INTO azeroth;
+INSERT Dimension(Number(10), Number(20)) INTO azeroth;
+INSERT Dimension(Number(10), 20) INTO azeroth;
+INSERT Dimension(10, Number(20)) INTO azeroth;
+INSERT Dimension(SELECT dimension FROM azeroth WHERE dimension IS Dimension AND dimension.id="dimensionasd11") INTO azeroth;
 \end{sql}
 
-/*Ilyenkor egy másik Dimension objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.*/
-
-\begin{sql}
-ADD Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
-\end{sql}
-
-/*Ilyenkor a dimension width attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.*/
+Ilyenkor egy másik Dimension objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
 
 \begin{sql}
-ADD Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
+INSERT Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
 \end{sql}
 
-/*Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.*/
-\begin{sql}
-ADD Dimension(Dimension(10,10)) INTO azeroth;
-\end{sql}
-
-/*Ezzel a fenti példájára ugyan így megadható.*/
-
-*Rectangle: Téglalap tárolására szolgál.Tatralmaz egy Pointot, amiben tárolja a bal felső sarkának koordinátáit, illetve egy Dimensiont, melyek a szélesség és magasság attribútumok lesznek.
+Ilyenkor a dimension width attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
 
 \begin{sql}
-ADD Rectangle(Point(10,10), Dimension(100, 200)) INTO azeroth;
-ADD Rectangle(Rectangle(10, 10, 100, 100)) INTO azeroth;
-\end{sql}
-/*Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.*/
-\begin{sql}
-ADD Rectangle(10, 10, 100, 200) INTO azeroth;
-ADD Rectangle(10, 10, Dimension(100, 200)) INTO azeroth;
-ADD Rectangle(Point(10, 10), 100, 200) INTO azeroth;
-ADD Rectangle(SELECT rectangle FROM azeroth WHERE rectangle IS Rectangle AND id = "rectasd11") INTO azeroth;
-ADD Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
+INSERT Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
 \end{sql}
 
-/*Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.*/
+Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
+\begin{sql}
+INSERT Dimension(Dimension(10,10)) INTO azeroth;
+\end{sql}
+
+Ezzel a fenti példájára ugyan így megadható.
+
+\item Rectangle: Téglalap tárolására szolgál.Tatralmaz egy Pointot, amiben tárolja a bal felső sarkának koordinátáit, illetve egy Dimensiont, melyek a szélesség és magasság attribútumok lesznek.
+
+\begin{sql}
+INSERT Rectangle(Point(10,10), Dimension(100, 200)) INTO azeroth;
+INSERT Rectangle(Rectangle(10, 10, 100, 100)) INTO azeroth;
+\end{sql}
+
+Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.
+
+\begin{sql}
+INSERT Rectangle(10, 10, 100, 200) INTO azeroth;
+INSERT Rectangle(10, 10, Dimension(100, 200)) INTO azeroth;
+INSERT Rectangle(Point(10, 10), 100, 200) INTO azeroth;
+INSERT Rectangle(SELECT rectangle FROM azeroth WHERE rectangle IS Rectangle AND id = "rectasd11") INTO azeroth;
+INSERT Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
+\end{sql}
+
+Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.
 Attól függetlenül, hogy hozzuk létre a Rectangle-t(4 paraméterrel vagy máshogy),  ez tárolni egy Pointban és egy Dimensionben fogja.
 
-*Circle: Még egyeztetés alatt a létjogosultsága.
+\item Circle: Még egyeztetés alatt a létjogosultsága.
 
 
-*Position: Ez egy olyan pont, aminek van iránya. Egy pont és egy vector.
+\item Position: Ez egy olyan pont, aminek van iránya. Egy pont és egy vector.
 \begin{sql}
-ADD Position(Point(10, 10),  Vector(100, 100)) INTO azeroth;
-ADD Position(Position(10, 10, 100, 100)) INTO azeroth;
+INSERT Position(Point(10, 10),  Vector(100, 100)) INTO azeroth;
+INSERT Position(Position(10, 10, 100, 100)) INTO azeroth;
 \end{sql}
 
-/*Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.*/
+Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.
 
 \begin{sql}
-ADD Position(10, 10, 100, 200) INTO azeroth;
+INSERT Position(10, 10, 100, 200) INTO azeroth;
 \end{sql}
-/*Ilyenkor a sorrend x,y,dx,dy.*/
+Ilyenkor a sorrend x,y,dx,dy.
 \begin{sql}
-ADD Position(10, 10, Vector(100, 200)) INTO azeroth;
-ADD Position(Point(10, 10), 100, 200) INTO azeroth;
-ADD Position(SELECT position FROM azeroth WHERE position IS Position AND id = "posasd11") INTO azeroth;
-ADD Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
+INSERT Position(10, 10, Vector(100, 200)) INTO azeroth;
+INSERT Position(Point(10, 10), 100, 200) INTO azeroth;
+INSERT Position(SELECT position FROM azeroth WHERE position IS Position AND id = "posasd11") INTO azeroth;
+INSERT Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
 \end{sql}
 
-/*Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.*/
+Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.
 
-*Node: Olyan Position, ami tartalmaz egy referenciát a következő Nodera. Ezzel egy láncolt Nodeok halmazát kapjuk, a sorrendiség adott a láncolt listából, hisz mindegyik Node az utána következőre mutat. Ezzel felírható egy egyenes, vagy útvonal. 
-ADD Node(Node(10, 10, 100, 100, NULL)) INTO azeroth; /*Itt úgy hozunk létre Nodeot, hogy a szimpla kifejezéssel, és a NULL az azt jelenti, hogy ő már nem mutat további Nodera, lehet hogy rá sem mutat semmi, akor ez egyenlőre egy szimpla Positionként funkcionál.*/
+\item Node: Olyan Position, ami tartalmaz egy referenciát a következő Nodera. Ezzel egy láncolt Nodeok halmazát kapjuk, a sorrendiség adott a láncolt listából, hisz mindegyik Node az utána következőre mutat. Ezzel felírható egy egyenes, vagy útvonal. 
+INSERT Node(Node(10, 10, 100, 100, NULL)) INTO azeroth; 
 
-\begin{sql}
-ADD Node(10, 10, 100, 100, NULL) INTO azeroth;
-ADD Node(10, 10, 100, 100, SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
-\end{sql}
-/*Itt már úgy hozunk létre egy Nodeot, hogy az egy másik Nodera mutat, egy már létező Node objektumra.*/
-\begin{sql}
-ADD Node(10, 10, 100, 100, Node(200, 200, 2000, 2000, NULL)) INTO azeroth;
-\end{sql}
-/*Ez a megoldás is járható út, ilyenkor a belső Node objektumra fog mutatni, ami viszont ilyenkor még nincs a mapen, de ez így hozzáteszi azzal, hogy ő hivatkozik rá a láncban.*/
-\begin{sql}
-ADD Node(10, 10, 100, 100, NULL, true) INTO azeroth;
-\end{sql}
-/*Ha 5. paraméternek beírunk egx truet, akkor azt jelenti, hogy ez egy Lánc első eleme, innen indul ki az összes többi(Ha az utolsó elem erre mutat, akkor kapunk egy körutat.)*/
-\begin{sql}
-ADD Node(10,10, 100, 100, NULL, false) INTO azeroth;
-\end{sql}
-/*Így is létrehozható egy Node, ez az alapértelmezett, tehát ha nem tüntetjük fel, hogy false, akkor alapértelmezés szerint false lesz annak a booleannak az értéke, ami azt jelzi, hogy ez a Node olyan-e, amiből kiindul egy út.*/
-\begin{sql}
-ADD Node(10,10, 100, 100) INTO azeroth;
-\end{sql}
-/*Ha elhadjuk azt a paramétert, ami a következő Nodera mutatna, akkor azzal sincs semmi gond, mert az autómatikusan beilleszti oda a NULL értéket.*/
-
-*Path: Node-ok halmaza.
+Itt úgy hozunk létre Nodeot, hogy a szimpla kifejezéssel, és a NULL az azt jelenti, hogy ő már nem mutat további Nodera, lehet hogy rá sem mutat semmi, akor ez egyenlőre egy szimpla Positionként funkcionál.
 
 \begin{sql}
-ADD Path(Node(10,10,10,10), Node(10,20), Node(10,10,100,35)) INTO azeroth;
+INSERT Node(10, 10, 100, 100, NULL) INTO azeroth;
+INSERT Node(10, 10, 100, 100, SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
+\end{sql}
+Itt már úgy hozunk létre egy Nodeot, hogy az egy másik Nodera mutat, egy már létező Node objektumra.
+\begin{sql}
+INSERT Node(10, 10, 100, 100, Node(200, 200, 2000, 2000, NULL)) INTO azeroth;
+\end{sql}
+Ez a megoldás is járható út, ilyenkor a belső Node objektumra fog mutatni, ami viszont ilyenkor még nincs a mapen, de ez így hozzáteszi azzal, hogy ő hivatkozik rá a láncban.
+\begin{sql}
+INSERT Node(10, 10, 100, 100, NULL, true) INTO azeroth;
+\end{sql}
+Ha 5. paraméternek beírunk egx truet, akkor azt jelenti, hogy ez egy Lánc első eleme, innen indul ki az összes többi(Ha az utolsó elem erre mutat, akkor kapunk egy körutat.)
+\begin{sql}
+INSERT Node(10,10, 100, 100, NULL, false) INTO azeroth;
+\end{sql}
+Így is létrehozható egy Node, ez az alapértelmezett, tehát ha nem tüntetjük fel, hogy false, akkor alapértelmezés szerint false lesz annak a booleannak az értéke, ami azt jelzi, hogy ez a Node olyan-e, amiből kiindul egy út.
+\begin{sql}
+INSERT Node(10,10, 100, 100) INTO azeroth;
+\end{sql}
+Ha elhadjuk azt a paramétert, ami a következő Nodera mutatna, akkor azzal sincs semmi gond, mert az autómatikusan beilleszti oda a NULL értéket.
+
+\item Path: Node-ok halmaza.
+
+\begin{sql}
+INSERT Path(Node(10,10,10,10), Node(10,20), Node(10,10,100,35)) INTO azeroth;
 \end{sql}
 
 Itt az útvonal úgy jön létre, hogy a paraméterlistában szereplő Nodeokat úgy hozza létre, hogy paraméterlistában való elhelyezkedés szerint adja értékül a next értéknek mindig a következőt. Az utolsó elem NULL- ra mutat. Az első elemre ha nem körútról van szó , akkor nem mutat semmi. Minden Node objektumnak van egy isFirst Boolean attribútuma, ami csak az első elemnek vesz fel true értéket, hogy tudjuk honnan indul az útvonal. Ez az isFirst a Path létrehozási mechanizmusban autómatikusan kap értéket, erről a felhasználónak nem kell gondoskodnia.
@@ -207,32 +212,35 @@ Látható, hogy az egyik Node-ot kevesebb(mindössze kettő paraméterrel) hoztu
 A Node adattípus leírásánál elmondtuk, hogy Node(10,10,10,10) létrehozva úgy, hogy nem adjuk meg a következő Nodera mutató elemet, akkor az autómatikusan NULL lesz, viszont ha ez Path() inicializálásnál történik, akkor a Path inicializálás ad neki értéket.
 
 \begin{sql}
-ADD Path(SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
+INSERT Path(SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
 \end{sql}
 
-/*Egy Path nem hozható létre úgy, hogy  meglévő Nodeok összegyűjtéséből. Tehát a Path inicializálásnál nem szerepelhet egyetlen Select sem, mert az hibát jelent. */
+Egy Path nem hozható létre úgy, hogy  meglévő Nodeok összegyűjtéséből. Tehát a Path inicializálásnál nem szerepelhet egyetlen Select sem, mert az hibát jelent.
 
 Egy objektum ha referenciát tartalmaz egy másik objektumra akkor az eléri bármikor a hivatkozottat, viszont a hivatkozott nem tud hivatkozni arra aki rá hivatkozik, erre nincs nyelvi elem definiálva, hisz szükségtelen, nagyon kevés alkalmazhatósága lenne, így kimaradt a lekérdező nyelv készletéből.
 
 Mit követeljünk meg number x, number y vagy Point xy ?
 Ha van x,y numbere, vagy location Point vagy Position attribútuma a user által definiált classnak, akkor végezhető vele distanceFrom, Collide, stb...
 
-\section{Támogatott operátorok}
+\end{itemize}
 
-= 
-<= 
->= 
-> 
-< 
-<> (nem egyenlő) 
-OR 
-AND 
-IS 
-NULL
-CLOSEST TO
-FARTHEST FROM
-COLLIDE
-NOT
+\section{Támogatott operátorok}
+\begin{itemize}
+\item = 
+\item <= 
+\item >= 
+\item > 
+\item < 
+\item <> (nem egyenlő) 
+\item OR 
+\item AND 
+\item IS 
+\item NULL
+\item CLOSEST TO
+\item FARTHEST FROM
+\item COLLIDE
+\item NOT
+\end{itemize}
 
 A fenti operátorok boolean értékkel térnek vissza.
 
@@ -244,21 +252,21 @@ SELECT mine FROM azeroth WHERE mine.y >= 10;
 SELECT mine FROM azeroth WHERE mine.x <> 20;
 \end{sql}
 
-/*A mine.x jelölés rejtve azt a feltételt is jelenti, hogy mine HAS x , és ez AND kapcsolattal jön hozzá*/
+A mine.x jelölés rejtve azt a feltételt is jelenti, hogy mine HAS x , és ez AND kapcsolattal jön hozzá.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine.stone.location.x > 10;
 \end{sql}
 
-/*olyan objektumokat kérdez le, amiknek van stone attribútuma, aminek van location attribútuma, aminek van x attribútuma(ezeket mind HAS-sal megvuszgáljuk, és ennek az x attribútumnak az értéke nagyobb mint 10.)*/
+Olyan objektumokat kérdez le, amiknek van stone attribútuma, aminek van location attribútuma, aminek van x attribútuma(ezeket mind HAS-sal megvuszgáljuk, és ennek az x attribútumnak az értéke nagyobb mint 10.)
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine IS Mine;
 \end{sql}
-/*Az IS operátor az objektum típusának ellenőrzésére szolgál, az IS bal odlalán egy szimbólum, jobb oldalán pedig egy Class név kell szerepeljen.*/
+Az IS operátor az objektum típusának ellenőrzésére szolgál, az IS bal odlalán egy szimbólum, jobb oldalán pedig egy Class név kell szerepeljen.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine.x = 10 AND mine.y < 20;
 SELECT mine FROM azeroth WHERE mine.stone IS NULL;
 \end{sql}
-/*egy referencia értéke lehet null, és itt azt is várjuk el a feltételben.*/
+Egy referencia értéke lehet null, és itt azt is várjuk el a feltételben.
 
 A logikai műveletek a WHERE után kombinálhatóak is természetesen:
 \begin{sql}
@@ -272,18 +280,18 @@ SELECT mine FROM azeroth WHERE mine.x = 10 AND (mine.y = 20 OR mine.id = 100);
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine.x = 10 AND NOT (mine.y = 20 OR mine.id = 100 OR 10=10);
 \end{sql}
-/*Azokat a mineokat gyűjti ki, amelyek x attribútuma 10, és y attribútuma nem egyenlő 20, és az id-jük nem egyenlő 100-al.*/
+Azokat a mineokat gyűjti ki, amelyek x attribútuma 10, és y attribútuma nem egyenlő 20, és az id-jük nem egyenlő 100-al.
 \begin{sql}
 
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine NOT CLOSEST TO POINT(10, 10);
 \end{sql}
 
-/*Azokat a mineokat választja ki, amelyek nem a legközelebb helyeszkednek el a 10,10 ponthoz.*/
+Azokat a mineokat választja ki, amelyek nem a legközelebb helyeszkednek el a 10,10 ponthoz.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine NOT COLLIDE POINT(10, 10);
 \end{sql}
-/*Azokat a mineokat választja ki, amelyek nem tartalmazzák a 10, 10 pontot.*/
+Azokat a mineokat választja ki, amelyek nem tartalmazzák a 10, 10 pontot.
 \begin{sql}
 SELECT mine FROM azeroth WHERE 
 \end{sql}
@@ -346,7 +354,7 @@ Ha törlök  egy Mapet, akkor minden benne tárolt elem törlődik vele együtt.
 \begin{sql}
 DROP CLASS Mine;
 \end{sql}
-/*Osztálydefiníció megszüntetése. Csak olyan osztálydefiníciót lehet megszüntetni, amire nincs hivatkozás, azaz egyik mapen sincs belőle példány létrehozva.*/
+Osztálydefiníció megszüntetése. Csak olyan osztálydefiníciót lehet megszüntetni, amire nincs hivatkozás, azaz egyik mapen sincs belőle példány létrehozva.
 
 -ALTER: Szerkezetmódisító művelet. 
 \begin{sql}
@@ -357,12 +365,12 @@ Ezzel hozzáad a Class definícióhoz egy újabb attribútumot. A példányokná
 \begin{sql}
 ALTER CLASS Mine RENAMEATTRIBUTE size TO name;
 \end{sql}
-/*Átnevezzünk egy attribútumot, innentől kezdve ezen a néven lehet rá hivatkozni.*/
+Átnevezzünk egy attribútumot, innentől kezdve ezen a néven lehet rá hivatkozni.
 
 \begin{sql}
 ALTER CLASS Mine DELETEATTRIBUTE size;
 \end{sql}
-/*Törli a size attribútumát ennek a Mine Class definíciónak. Ez csak akkor lehetséges, ha nincs egyetlen példány sem létrehozva belőle.*/
+Törli a size attribútumát ennek a Mine Class definíciónak. Ez csak akkor lehetséges, ha nincs egyetlen példány sem létrehozva belőle.
 
 \begin{sql}
 ALTER CLASS Mine RENAMECLASS BigMine;
@@ -384,26 +392,26 @@ DELETE mine FROM azeroth;
 \begin{sql}
 DELETE object FROM azeroth WHERE object HAS x;
 \end{sql}
-/*Minden elemet kitöröl az azeroth térképről, aminek van x attribútuma.*/
+Minden elemet kitöröl az azeroth térképről, aminek van x attribútuma.
 
 -UPDATE: Objektum tartalom módosítás.
 \begin{sql}
 UPDATE azeroth SET x = 30 WHERE id="asd11";
 \end{sql}
-/*Az azeroth térképen lévő asd11 elem x attribútumának értékét 30-ra állítja ütközésvizsgálat nélkül.*/
+Az azeroth térképen lévő asd11 elem x attribútumának értékét 30-ra állítja ütközésvizsgálat nélkül.
 
 \begin{sql}
 UPDATE azeroth MOVE  mine TO  (10,10) WHERE mine.id = "asd11";
 \end{sql}
-/*Azt mozgatja el, akinek van id tulajdonsága és az asd11". Ebben a verzióban a (10,10) pontba toljuk az objektumot.;
+Azt mozgatja el, akinek van id tulajdonsága és az asd11". Ebben a verzióban a (10,10) pontba toljuk az objektumot.
 \begin{sql}
 UPDATE azeroth MOVE  mine.x TO 10 WHERE mine.id = "asd11";
 \end{sql}
-/*Azt mozgatja el, akinek van id tulajdonsága és az asd11. Ebben a megoldásban csak egy attribútum szerinti változtatás történik, tehát az új pozíció ahova rakjuk az elemet, az x = 10, és az y pedig maradt ami volt.";
+Azt mozgatja el, akinek van id tulajdonsága és az asd11. Ebben a megoldásban csak egy attribútum szerinti változtatás történik, tehát az új pozíció ahova rakjuk az elemet, az x = 10, és az y pedig maradt ami volt.
 \begin{sql}
 UPDATE azeroth MOVE  mine BY  (10,10) WHERE mine.id = "asd11";
 \end{sql}
-/*Azt mozgatja el, akinek van id tulajdonsága és az asd11. Ebben a megoldásban egy vector segítségével toljuk el az objektumot, tehát nem új pozíciót adunk meg, hanem elmozdulási irányt és mértéket.";
+Azt mozgatja el, akinek van id tulajdonsága és az asd11. Ebben a megoldásban egy vector segítségével toljuk el az objektumot, tehát nem új pozíciót adunk meg, hanem elmozdulási irányt és mértéket.
 
 Látható, hogy két -féle UPDATE művelet létezik az adatbázisban. Az egyik, amikor a set kulcsszó szerepel, akkor mindenféle ütközésvizsgálat nélkül bármely attribútum értékét változtathatjuk az adott objektumnak, nincs megkötés, hogy csak pozíciót lehetne.
 
@@ -418,23 +426,23 @@ A LAYER 1 azt jelenti, hogy a beszúrandó elemek zlayer attribútumát 1-re ál
 \begin{sql}
 ADD Szobor(location,name) INTO azeroth VALUES(Point(10,10), "asdJani") LAYER 1;
 \end{sql}
-/*Itt létrehozunk egy új Szobor példányt az azeroth térképre.*/
+Itt létrehozunk egy új Szobor példányt az azeroth térképre.
 
 \begin{sql}
 INSERT Mine(x, Stone(Location(x,y), w, h), age) INTO azeroth Values(10, Stone(Location(10, 20), 30, 40), 1234);
 \end{sql}
-/*Látható, hogy a values is elég rendesen egymásba ágyazható.*/
+Látható, hogy a values is elég rendesen egymásba ágyazható.
 
 Megadható, hogy mely attribútumoknak fogunk értéket adni inserteléskor.
 \begin{sql}
 ADD Szobor(x,y,stone(x,y),name) INTO azeroth VALUES(10,10,(10,20),"name");
 \end{sql}
-/*Ennek a példának az a különlegessége, hogy példányosításban példányosítunk.*/
+Ennek a példának az a különlegessége, hogy példányosításban példányosítunk.
 
 \begin{sql}
 ADD Szobor INTO azeroth VALUES(10,10,(,20,20),"asd",123);
 \end{sql}
-/*Ilyenkor, amikor nem adjuk meg zárójelek között, hogy mely attribútumainak szeretnénk inicializáló értéket adni, ilyenkor mindnek kell.*/
+Ilyenkor, amikor nem adjuk meg zárójelek között, hogy mely attribútumainak szeretnénk inicializáló értéket adni, ilyenkor mindnek kell.
 
 Fontos megemlíteni, hogy létrehozhatunk úgy objektumot, hogy az attribútumai között van olyan, aminek nem másolatot adunk, hanem referenciát, hogy arra mutasson.
 \begin{sql}
@@ -448,35 +456,28 @@ Ha ennek a selectnek több értékű halmaz eredménye lesz, akkor hiba dobódik
 \begin{sql}
 SELECT mine From azeroth;
 \end{sql}
-/*A mine egy kifejezés, amin keresztül elérhetjük az összes  azeroth mapen lévő objektumot. A Select után csak egy ilyen kifejezés állhat. Ez azt csinálja, hogy visszaad egy halmazt, amiben minden elem(point,rectangle,saját definiált class) benne van szűkítés nélkül.*/
+A mine egy kifejezés, amin keresztül elérhetjük az összes  azeroth mapen lévő objektumot. A Select után csak egy ilyen kifejezés állhat. Ez azt csinálja, hogy visszaad egy halmazt, amiben minden elem(point,rectangle,saját definiált class) benne van szűkítés nélkül.
 \begin{sql}
 SELECT mine.x from azeroth;
 \end{sql}
-/*Ez visszaadja azon elemek halmazát az azeroth mapről, melyeknek van x attribútumuk, és azoknak az attribútumoknak a halmazát adná(Tehát itt number x-ek lennének az eredmény halmazban.)*/
+Ez visszaadja azon elemek halmazát az azeroth mapről, melyeknek van x attribútumuk, és azoknak az attribútumoknak a halmazát adná(Tehát itt number x-ek lennének az eredmény halmazban.)
 
-\begin{figure}[htb]
-\begin{center}
-    \includegraphics[scale=0.5]{images/selection}
-    \caption{}
-    \label{fig:selection}
-\end{center}
-\end{figure}
 
 \begin{sql}
 Min(SELECT mine.x from azeroth);
 \end{sql}
-/*Kiválasztja a legkisebb x attribútumot a térképről.*/
+Kiválasztja a legkisebb x attribútumot a térképről.
 A min(), max() függvények egy halmazt várnak, és abból a halmazból visszaadják a legkisebb vagy legnagyobb elemet. Olyan halmazt várnak, melyek elemei csak rendezhető elemeket tartalmaznak és azokból is mind ugyan olyan(Csak számokat vagy csak stringeket tartalmaz).
 \begin{sql}
 Select mine.x from azeroth;
 \end{sql}
 Ilyenkor a mine.x  azt jelenti, hogy az összes x attribútumot gyűjti ki.
-/*Min(Select mine from azeroth);-ra hibát dobna, mivel mine az egy objektum, ami nem number és nem is string, ezért nem tud belőle skalárt visszaadni.
+Min(Select mine from azeroth);-ra hibát dobna, mivel mine az egy objektum, ami nem number és nem is string, ezért nem tud belőle skalárt visszaadni.
 
 \begin{sql}
 SELECT mine.stone.location.x FROM azeroth WHERE mine IS Mine;
 \end{sql}
-/*Olyan elképzelhető, hogy egy obkektum egyik attribútumának egyik attribútumának egyik attribútumár szeretnénk lekérdezni.*/
+Olyan elképzelhető, hogy egy obkektum egyik attribútumának egyik attribútumának egyik attribútumár szeretnénk lekérdezni.
 - Halmazműveletek a lekérdezésekben:
 
 - Difference(Select mine from azeroth where mine.x < 100, Select mine from azeroth where mine.y > 10);  /*Két halmaz különbségét adja. Ugyebár a paraméterlistában szereplő két lekérdezés két halmazzal tér vissza.*/
@@ -486,13 +487,13 @@ Select mine from azeroth where mine.x < 100 Difference Select mine from azeroth 
 \begin{sql}
 Select mine from azeroth where mine.x < 100 Cutaway Select mine from azeroth where mine.y > 10 Cutaway Select mine From azeroth where mine IS Mine;
 \end{sql}
-/*Itt látható, hogy két alkalommal is szerepel a halmazművelet kulcsszava.Ilyenkor sorrendben végrehajtja, azaz először kivonja az első két halmazt egymásból, majd annak eredményéből kivonja az utolsó halmazt.*/
+Itt látható, hogy két alkalommal is szerepel a halmazművelet kulcsszava.Ilyenkor sorrendben végrehajtja, azaz először kivonja az első két halmazt egymásból, majd annak eredményéből kivonja az utolsó halmazt.
 Könnyű belátni , hogy a halmazműveletek helyettesíthetőek logikai kifejezésekkel.
 
 \begin{sql}
 Select mine from azeroth where mine.x < 100 AND mine.y <= 10;
 \end{sql}
-/*Ez a lekérdezés teljesen ekvivalens a fenti lekérdezésekkel, melyekben két select van, ugyanis azokat az elemeket rakjuk a halmazba melyek x attribútuma 100-nál kisebb, viszont y kisebb mint 10, ez felcserélődik.*/
+Ez a lekérdezés teljesen ekvivalens a fenti lekérdezésekkel, melyekben két select van, ugyanis azokat az elemeket rakjuk a halmazba melyek x attribútuma 100-nál kisebb, viszont y kisebb mint 10, ez felcserélődik.
 
 (Az A és B halmaz (ebben a sorrendben tekintett) különbségének nevezzük azoknak az elemeknek a halmazát, amelyek elemei az A halmaznak és nem elemei a B halmaznak.)
 
@@ -515,27 +516,27 @@ Select mine from azeroth where mine.x < 100 Cutaway Select mine from azeroth whe
 \begin{sql}
 Min(Union(Select mine from azeroth where mine.x < 100, Select mine from azeroth where mine.y > 10));
 \end{sql}
-/*Erre szintén hibát dobna, mert az unióott halmazban nem csak numberek vagy stringek vannak.*/
+Erre szintén hibát dobna, mert az unióott halmazban nem csak numberek vagy stringek vannak.
 
 \begin{sql}
 Min(SELECT mine.x from azeroth);
 \end{sql}
-/*Kiválasztja a legkisebb x attribútumot a térképről.*/
+Kiválasztja a legkisebb x attribútumot a térképről.
 
 \begin{sql}
 SELECT mine.distance From azeroth;
 \end{sql}
-/*Kiválasztja az összes distance attribútumot azeroth mappáról.*/
+Kiválasztja az összes distance attribútumot azeroth mappáról.
 
-/*Az alábbi két lekérdezés közötti különbség:*/
+Az alábbi két lekérdezés közötti különbség:
 \begin{sql}
 Select mine.x From azeroth; 
 \end{sql}
-/*Ez visszaadja az összes x attribútumot ami a pályán található*/
+Ez visszaadja az összes x attribútumot ami a pályán található
 \begin{sql}
 Select mine From azeroth Where mine HAS x;
 \end{sql}
-/*Ez visszaadja az összes Mine típusú elemet, aminek van x attribútuma.*/
+Ez visszaadja az összes Mine típusú elemet, aminek van x attribútuma.
 
 \begin{sql}
 SELECT mine
@@ -544,15 +545,15 @@ WHERE mine CLOSEST TO Point(10, 10) AND mine IS Mine
 ORDER BY mine.id
 LIMIT 5;
 \end{sql}
-/*Kiválasztja azokát a Mineokat(maximum 5 darabot), amelyek legközelebb vannak a 10,10 ponthoz(ha több is ugyan olyan távolságra van), 
-rendezi mine.id szerint és azután választ ki 5 darabot legfeljebb.*/
+Kiválasztja azokát a Mineokat(maximum 5 darabot), amelyek legközelebb vannak a 10,10 ponthoz(ha több is ugyan olyan távolságra van), 
+rendezi mine.id szerint és azután választ ki 5 darabot legfeljebb.
 
 \begin{sql}
 Select mine
 FROM azeroth
 WHERE mine CLOSEST TO POINT(10,10);
 \end{sql}
-/*A CLOSEST TO után */
+A CLOSEST TO után 
 
 \begin{sql}
 SELECT mine
@@ -565,8 +566,8 @@ SELECT mine
 FROM azeroth
 WHERE mine CLOSEST TO Point(10, 10) AND mine.distanceFrom(Point(10, 10)) > 30;
 \end{sql}
-/*Kiválasztja azokat az elemeket a mapről, amelyek legközelebb vannak a 10,10 ponthoz, és a 10,10 ponttól 30 ponttól nagyobb távra vannak.
-A CLOSEST TO is booleannel tér vissza, azaz megnézi, hogy ez van-e legközelebb hozzá.*/
+Kiválasztja azokat az elemeket a mapről, amelyek legközelebb vannak a 10,10 ponthoz, és a 10,10 ponttól 30 ponttól nagyobb távra vannak.
+A CLOSEST TO is booleannel tér vissza, azaz megnézi, hogy ez van-e legközelebb hozzá.
 
 \begin{sql}
 SELECT mine
@@ -575,13 +576,13 @@ WHERE mine CLOSEST TO Point(SELECT number FROM azertoth WHERE number.id='21', SE
  AND mine.distanceFrom(Point(SELECT number FROM azeroth WHERE number.id='34', SELECT number FROM azeroth WHERE number.id='34')) > SELECT number FROM (SELECT number FROM outland) WHERE number.id='34';
 \end{sql}
 
-/*Kifejezések helyén állhat select, és a selecten belül is bőven lehet select*/
+Kifejezések helyén állhat select, és a selecten belül is bőven lehet select
 
 \begin{sql}
 MIN (SELECT mine.distanceFrom(Point(10, 10)) FROM azeroth);
 \end{sql}
-/*a mine.distanceFrom egy olyan setet ad vissza amibe numberek vannak, tehát ez a lekérdezés visszaadja azt a távolságot, ami legközelebb van
-a 10,10 ponthoz(létező map elemek távolságai közül választ.)*/
+A mine.distanceFrom egy olyan setet ad vissza amibe numberek vannak, tehát ez a lekérdezés visszaadja azt a távolságot, ami legközelebb van
+a 10,10 ponthoz(létező map elemek távolságai közül választ.)
 
 \begin{sql}
 SELECT mine
@@ -596,7 +597,7 @@ SELECT mine
 FROM azeroth
 WHERE mine COLLIDE Rectangle(20, 30, 40, 50);
 \end{sql}
-/*Visszaadja az összes elemet, ami ütközik ezzel a téglalappal.*/
+Visszaadja az összes elemet, ami ütközik ezzel a téglalappal.
 
 \begin{sql}
 SELECT mine.distanceFrom(point)
@@ -606,7 +607,7 @@ point COLLIDE Rectangle(10, 20, 30, 40) AND
 point IS Point AND
 mine IS Mine;
 \end{sql}
-/*Visszaadja azösszes olyan bánya és egy pont távolságát, ahol a pont benne van abban a téglalapban.*/
+Visszaadja azösszes olyan bánya és egy pont távolságát, ahol a pont benne van abban a téglalapban.
 
 - SELECT után nem állhat min(), max(),union(),difference(),stb...
 SELECT után csak 1 db kifejezés állhat, ami objektumokra mutat(amolyan iterátor).
@@ -617,12 +618,12 @@ SELECT után csak 1 db kifejezés állhat, ami objektumokra mutat(amolyan iterá
 SELECT mine FROM azeroth ORDER BY mine.x LIMIT 1;
 (SELECT mine FROM azeroth ORDER BY mine.x ASC LIMIT 1;)
 \end{sql}
-/*Itt Rendezzük az elemeket x szerint(itt csak azokat veszi bele, aminek van x attribútuma, majd a rendezett elemből visszaadja az utolsót, ami itt nővekvő sorrend miatt a legnagyobb elem lesz.)*/
+Itt Rendezzük az elemeket x szerint(itt csak azokat veszi bele, aminek van x attribútuma, majd a rendezett elemből visszaadja az utolsót, ami itt nővekvő sorrend miatt a legnagyobb elem lesz.)
 
 \begin{sql}
 SELECT object FROM (UNION(...)) ORDER BY object.x DESC LIMIT 1;
 \end{sql}
-/*Látható, hogy from után állhat halmazműveleteredmény is, hisz az is egy halmazt ad. ORDER BY után csak olyan attribútum állhat, ami number vagy string, mert ezek szerint lehet rendezést végezni, a többi szerint nem , és azokra hibát kell dobni.*/
+Látható, hogy from után állhat halmazműveleteredmény is, hisz az is egy halmazt ad. ORDER BY után csak olyan attribútum állhat, ami number vagy string, mert ezek szerint lehet rendezést végezni, a többi szerint nem , és azokra hibát kell dobni.
 Order By használata: Ha x attribútum szerint szeretnénk rendezni az eredményhalmazt, de az eredményhalmazban vannak olyan elemek, melyeknek nincs x attribútuma nincs semmi baj, a lista elejére rakja a rendezett x attribútummal rendelkező elemeket, majd a végére a maradék x attribútummal nem rendelkező elemeket. 
 
 Egy hasznos Select funkció bemutatása következik. Ugyebár lehet Update lekérdezésben MOVE kulcsszóval eltolni objektumokat ütközésvizsgálva, viszont ezt a parancsot kiadva a változtatás megtörténik az adatbázisban.
@@ -668,8 +669,8 @@ Mivel az adatbázisban üzleti logikát is tárolhatunk, azon objektumok pedig n
 
 \begin{figure}[htb]
 \begin{center}
-    \includegraphics[scale=0.5]{images/collision}
-    \caption{}
+    \includegraphics[scale=0.15]{images/collision}
+    \caption{Ütközés vizsgálat két alakzat között}
     \label{fig:collision}
 \end{center}
 \end{figure}
@@ -679,6 +680,45 @@ Az ütközés vizsgálatnak van egy másik fajtája is, amikor mozogni szeretné
 Itt a csúszós hatás is garantálja az eljárás, a felhasználónak csak annyit kell kiadnia, hogy hova szeretné léptetni az entitást, a többit az adatbázismotor megoldja, az új pozíció vagy az lesz amit a felhasználó lekérdezés formájában megadott, vagy ha ütközött, akkor egy új pozíciót számol neki az adatbázis.
 
 Az UPDATE lekérdezés mindig visszaadja a módosított objektumokkal feltöltött mapet, tehát nem csak egy számot ad vissza, mint az Sql a módosított elemek számára vonatkozóan, hanem azokat egy az egyben vissza is adja.
+
+
+
+A \ref{fig:collision}. ábrán látható, hogy milyen elven oldottam meg a problémát. A bal fels\H o sarokban lév\H o zöld téglalap az entitás, amivel mozogni szeretnék. Minden entitást egy bal fels\H o sarok koordinátával és egy szélesség-magasság egész értékekkel lehet meghatározni az ütközésvizsgálat szempontjából. A bal fels\H o sarkából kiinduló egyenes köti össze a bal fels\H o sarkát azzal a ponttal, ahová mozogni szeretne az entitás. A jobb alsó sarokban lév\H o téglalap ez az objektum, amivel ütközést vizsgálok. Látható, hogy a bal fels\H o sarkához hozzátoltam a mozogni szándékozó entitást, és így kaptam egy nagyobb téglalapot.
+Az új téglalap négy határoló egyenesével megvizsgálom, hogy van-e metszéspontja annak az egyenesnek, ami az entitás bal fels\H o sarkából indul. Ha van, akkor ütközne, ha nincs egyik oldali egyenessel sem metszéspont, akkor az azt jelenti, hogy azzal az objektummal nem ütközik az entitás, ha oda lép. Természetesen ezt az eljárást minden pályaelemre meg kell ismételni.
+
+
+
+A \ref{fig:collision2}.ábrán a zöld téglalappal szeretnénk mozogni olyan pontba, ahol ütközne már a nagy piros téglalappal. A sárga téglalap lesz az, ahova lecsúszik majd az ütközést követ\H oen a zöld entitás.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.15]{images/collision2.png}
+		\caption{Két alakzat ütközésének következménye}
+		\label{fig:collision2}
+	\end{center}
+\end{figure}
+
+Két egyenes metszéspontjának implementációja: Az implementáció sokkal egyszer\H ubbnek bizonyult homogén koordináta rendszerben, mint deascertes-ban. Míg descartesben fel kell írni az egyenesek egyenletét, majd implementálni egy olyan szolgáltatás, amely megold egy lineáris egyenletrendszert, addig ez homogén koordinátákkal sokkal egyszer\H ubb m\H uvelet.
+Két pontra illeszked\H o egyenes egyenlete homogén koordináta rendszerben: 
+\\
+e = ( a b c ) =$ \bordermatrix{~ &  &  &  \cr
+	& i & j & k\cr
+	& a_1 & a_2 & 1\cr
+	& b_1 & b_2 & 1\cr} = ( a_2 - b_2 , b_1 - a_1 , a_1b_2 - b_1a_2 )$
+\\
+Két egyenes metszéspontjának meghatározása:\\
+\\
+P = ( p1 p2 p3 ) = \bordermatrix{~ &  &  &  \cr
+	& i & j & k\cr
+	& a & b & c\cr
+	& e & f & g\cr} = ( bg - fc  ec - ag  af - eb )
+\\
+A P pont Descartes koordinátái:
+$ x = \cfrac{bg - fc}{af - eb} , y = \cfrac{ec - ag}{af - eb}$
+\cite{Banya5}
+
+
+Az alkalmazás a Collision interfészen keresztül veheti igénybe az ütközés vizsgálat számítást. Ez foglalja magába a homogén koordinátás implementációt.
 
 \begin{sql}
 UPDATE azeroth MOVE  mine TO Point(10,10) WHERE mine.id = "alma11"; 
@@ -752,13 +792,6 @@ WHERE mine CLOSEST TO (10, 10) AND mine.distanceFrom(20, 20) > 30;
 \end{sql}
 A fenti lekérdezés kiválasztja azokat az elemeket a mapről, amelyek legközelebb vannak a (10,10) ponthoz, és a  (20,20) ponttól 30 ponttól nagyobb távra vannak.
 
-\begin{figure}[htb]
-\begin{center}
-    \includegraphics[scale=0.5]{images/distance}
-    \caption{Távolság számítása}
-    \label{fig:distance}
-\end{center}
-\end{figure}
 
 A fekete vonal a távolság vektor.
 
