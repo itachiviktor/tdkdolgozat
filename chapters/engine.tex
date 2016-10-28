@@ -53,3 +53,74 @@ Az adatbázismotor feladata levenni a terhet a felhasználó válláról,
 optimalizált algoritmusokkal támogatni a lekérdezéseket. Térképfelosztás, pályaelem összevonás, ezek mind olyan feladatok,
 amelyek a térképműveletek gyorsabb végrehajtását idézik elő.
 Mivel a dolgozatnak egyenlőre nem célja, hogy a piacon versenyképes szoftver legyen, ezért az optimalizálás nem került bele a dolgozatba.
+
+\section{A WHERE lekérdezés gráffá alakítása}
+
+WHERE ((mine.x < 10 AND mine IS Mine) OR (mine.location.x = 10 OR mine.y = 20)) AND mine.id = 10;
+
+A fenti lekérdezés részletet kapja meg a tokenizer komponens, akkor karakterenként elkezdi feldolgozni.
+
+A szintaxis diagrammban feltüntetett élekre definiáltam metódusokat, melyeket a tokenizer meghívhat. 
+
+A WhereBuilder objektum metódusait hívja meg a tokenizer.
+
+A lekérdezés String feldolgozásának menete:
+
+A WHERE kulcsszónál létrehozza a WhereBuilder objektumot. 
+A "(" karakternél mélyít az aktuális mélységen. A builder adattagként két állapotváltozót tárol, az egyik, hogy aktuálisan a fa mely szintjén járunk, a másik pedig, hogy azon a szinten bal, vagy jobb gyerek beszúrása lesz az aktuális feladat. Mivel bináris fáról van szó, így egy csomópontnak csak két gyereke lehet, vagy egy sem, ilyenkor levélről beszélünk. Azt érdemes látni ezen a fa ábrázoláson, hogy levelek nem csak a legmélyebb szinten lehetnek.
+
+A "mine.x" esetén a builder létrehoz egy Operand objektumot. Két Operand objektum, és egy Operator(AND, OR) objektumból a builder létrehoz egy WhereLeaf objektumot, ez a fa egyik levele lesz. Az aktuális állapotváltozókat figyelembe véve, a mélységi szintet és azt, hogy jobb vagy bal gyerek lesz ez a levél beállítja a builder. Következő metódus meghívásakor az "AND" logikai operátor adódik hozzá a fához. A builder neki is beállít egy mélységi és egy gyerek értéket. A ")" karakter észlelése után a buildernek egy olyan metódusa hívódik meg, amely az aktuális mélységi állapotváltozó értékét csökkenti eggyel.
+
+Az említett példán szeretném bemutatni, hogy a fenti algoritmus miként működik. Ennek a lépésnek az alapja, hogy egy listába rakja a létrehozott operátorokat és operandusokat a builder lekérdezésobjektum gyártó.
+
+- "WHERE":Ezen kulcsszó hatására létrejön a WhereBuilder objektum, a mélységi állapotváltozó értékét 1-re állítja, az aktuális gyerek értéket pedig Left(bal) értékre.
+- "(": A mélységi állapotváltozó értékét kettőre növeli.
+- "(": A mélységi állapotváltozó értékét háromra növeli.
+- "mine.x < 10": A builder létrehoz egy WhereLeaf (levelet a fába)objektumot hozzáadva a listához, ennek a mélységi állapotváltozóját négyre állítva (levelek esetén nem az aktuális mélységi értéket, hanem azt eggyel megnövelve kell beállítani). A levél aktuális gyerek értékét Leftre állítja, és a builder a saját állapotváltozóját Rightra állítja ezen a szinten(ezt egy Map objektummal valósítom meg, ahol a kulcs az, hogy hanyadik szint a fában, az érték pedig a gyerek oldala). Tehát a builderben a négyes szinthez Right érték lett beállítva.
+- "AND": A builder létrehoz egy Operator objektumot, mélységi állapot 3, gyerek Leftre állítva, majd hozzáadja a listához.
+
+Ez így folytatódik egészen addig, amíg nem ér a String végére. A feltöltött eredménylista tartalma:
+
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.x < 10
+Mélység: 3 gyerek oldal:(false-bal, true- jobb)false  AND
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine IS Mine 
+Mélység: 2 gyerek oldal:(false-bal, true- jobb)false  OR
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.location.x 
+Mélység: 3 gyerek oldal:(false-bal, true- jobb)true  OR
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine.y = 20 
+Mélység: 1 gyerek oldal:(false-bal, true- jobb)false  AND
+Mélység: 2 gyerek oldal:(false-bal, true- jobb)true mine.id = 10 
+
+Ha ezzel a lépéssel végeztünk, akkor a builder objektum ezt a listát rendezi a mélység és a gyerek oldal attribútumok szerint.
+A rendezés eredménye:
+
+Mélység: 1 gyerek oldal:(false-bal, true- jobb)false AND
+Mélység: 2 gyerek oldal:(false-bal, true- jobb)false OR
+Mélység: 2 gyerek oldal:(false-bal, true- jobb)true mine.id = 10
+Mélység: 3 gyerek oldal:(false-bal, true- jobb)false AND
+Mélység: 3 gyerek oldal:(false-bal, true- jobb)true OR
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.x < 10
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine IS Mine
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.location.x
+Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine.y = 20
+
+Miért jó ez a sorrend? 
+Azért, mert itt már beszúrási sorrendben vannak, innentől kezdve felépíthető a fa.
+
+A végső felépítés előtt még szükség van egy veremre, ami a lista tartalmát ugyan abban a sorrendben tárolja.
+
+A fa felépítése a következő képen történik:
+
+Lista tartalma: AND, OR, mine.id = 10, AND, OR, mine.x < 10, mine IS Mine, mine.location.x, mine.y = 20
+
+A verem tartalma: AND, OR, mine.id = 10, AND, OR, mine.x < 10, mine IS Mine, mine.location.x, mine.y = 20
+
+A két kollekció tartalma tehát megegyezik. Az algoritmust egy for ciklusban valósítunk meg, ez a ciklus pedig a lista elemein iterál végig, és minden elemnek beállítja a gyerekeit úgy, hogy a verem tetejéről levesz két elemet.
+A levelekhez értelem szerűen nem lehet gyereket rendelni.
+
+Az eredmény a lenti képen látható.
+
+Innentől kezdve rendelkezésünkre áll egy olyan bináris fagráf, amelyet postorder bejárással végrehajtva a lekérdezés ki fog értékelődni.
+
+
+
