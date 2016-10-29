@@ -59,6 +59,19 @@ literate={á}{{\'a}}1 {é}{{\'e}}1 {ö}{{\"o}}1 {ő}{{\H{o}}}1 {ó}{{\'o}}1,
 \usepackage{java}
 \usepackage{sql}
 
+% Colors
+\usepackage{color}
+
+% Task
+\newenvironment{comment}[1]
+{\color{green}\noindent{$\circ$ \textit{#1}}
+
+\smallskip
+
+\color{gray}
+
+}{\bigskip}
+
 \begin{document}
 
 % \pagestyle{empty} %a címlapon ne legyen semmi=empty, azaz nincs fejléc és lábléc
