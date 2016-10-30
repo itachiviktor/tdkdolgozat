@@ -64,6 +64,10 @@ A SELECT lekérdezés kiértékelése ennek segítségével úgy történik, hog
 	\end{center}
 \end{figure}
 
+\subsection{Lekérdezés feldolgozás és lekérdezés kiértékelés}
+
+Minden lekérdezéshez készültek szintaxis diagramok, amelyek segítségével leírtuk a nyelv szerkezetét, illetve a parser erre támaszkodva tud szintaxist ellenőrizni. A diagramok éleihez érve a parser meghív egy metódust, ami a lekérdezés objektum felépítő egyik metódusa. Minden lekérdezés típushoz definiáltunk egy felépítő osztályt, ami interfész a lekérdezésobjektumok felé.
+
 
 \subsection{A WHERE kifejezés ábrázolása}
 
@@ -124,6 +128,14 @@ Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.location.x
 Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine.y = 20
 \end{verbatim}
 
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.1]{images/WhereBuild}
+		\caption{A lekérdezésből felépített bináris fa}
+		\label{fig:wherePostorderBuilder}
+	\end{center}
+\end{figure}
+
 \textit{Miért jó ez a sorrend?}
 Azért, mert itt már beszúrási sorrendben vannak, innentől kezdve felépíthető a fa.
 
@@ -141,6 +153,138 @@ A levelekhez értelem szerűen nem lehet gyereket rendelni.
 Az eredmény a lenti képen látható.
 
 Innentől kezdve rendelkezésünkre áll egy olyan bináris fagráf, amelyet postorder bejárással végrehajtva a lekérdezés ki fog értékelődni.
+
+\section{DELETE lekérdezés felépítése}
+
+A következő lekérdezés érkezik az adatbázismotorhoz:
+\begin{sql}
+DELETE mine FROM azeroth WHERE mine.x > 10;
+\end{sql}
+
+Nem csak a lekérdezésekhez készült Builder osztály, hanem a WHERE feltétel leíróhoz is, erre azért volt szükség, mert az a részfeladat nagyon komplex, illetve több lekérdezésben is szerepet kap. A WhereBuilder-t a lekérdezés felépítő osztályok magukba foglalják, definiálnak pontosan ugyan olyan metódusokat mint ami a WhereBuildernek van, és azokban csak tovább hívják annak azonos metódusait.
+
+Hasonlóan történt az implementáció a DeleteBuilder osztálynál is. 
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/delete}
+		\caption{A DELETE lekérdezés szintaxis diagramja}
+		\label{fig:deleteSytnax}
+	\end{center}
+\end{figure}
+
+A szintaxis diagram alapján ezek a metódusok hívódnak meg a DeleteBuilder objektumnak:
+
+DeleteBuilder builder = new Builder(); \\
+builder.createDelete("mine"); \\ 
+builder.setFrom("azeroth"); \\
+builder.addOperandPiece("mine.x"); \\
+builder.addOperator(">"); \\
+builder.addOperandPiece("10"); \\
+builder.build(); \\
+
+Minden builder osztályban definiáltunk egy build metódust, ami egy IQueryObject példányt ad vissza. Minden lekérdezés objektum implementálja az IQueryObject interfészt, ami egy execute() metódust tartalmaz.
+
+
+
+\section{ALTER lekérdezés felépítése}
+
+A következő lekérdezés érkezik az adatbázismotorhoz:
+\begin{sql}
+ALTER CLASS Rectangle DELETEATTRIBUTE x;
+\end{sql}
+
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/alter}
+		\caption{Az ALTER lekérdezés szintaxis diagramja}
+		\label{fig:alterSytnax}
+	\end{center}
+\end{figure}
+
+A builder objektum metódusainak használata a fenti lekérdezés esetében:
+
+AlterBuilder builder = new AlterBuilder(); \\
+builder.createAlter("Rectangle"); \\
+builder.setAlterType("DELETEATTRIBUTE"); \\
+builder.setStringAttribute("x"); \\
+builder.build(); \\
+
+Az Alter lekérdezés 4 típust definiál:
+
+\begin{itemize}
+\item Osztálynév módosítás
+\item Attribútum törlés
+\item Attribútum definiálás
+\item Attribútum átnevezése
+\end{itemize}
+
+Ezek közül az attribútum létrehozáshoz és átnevezéshez egy plusz attribútumra van szükség, amelyet a builder.setOptionalValue(attribute-name or attribute-Type)
+metódussal állíthatjuk be.
+
+\section{CREATE lekérdezés felépítése}
+
+A CREATE lekérdezéssel adatbázist, térképet és osztály definíciót lehet létrehozni. Az adatbázisnak és a térképnek a definiálása a legkönnyebb lekérdezések egyike, és az osztály definiálása ugyan azon lépésekből áll, csak egy párat definiál pluszba hozzájuk.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/create}
+		\caption{A CREATE lekérdezés szintaxis diagramja adatbázis és térkép létrehozásra szűkítve}
+		\label{fig:createSytnax}
+	\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/createclass}
+		\caption{A CREATE lekérdezés szintaxis diagramja osztálydefiníció definiálásához}
+		\label{fig:createClassSytnax}
+	\end{center}
+\end{figure}
+
+
+
+A következő lekérdezés érkezik az adatbázismotorhoz:
+\begin{sql}
+CREATE CLASS Harcos(
+Number kor,
+Number attack DEFAULT 10,
+String nev);
+\end{sql}
+
+CreateBuilder builder = new CreateBuilder();
+builder.setCreateType("CLASS"); \\
+builder.setTheCommonValue("Harcos"); \\
+builder.addAttributeParam("Number"); \\
+builder.addAttributeParam("kor"); \\
+builder.insertAttribute(); \\
+builder.addAttributeParam("Number"); \\
+builder.addAttributeParam("attack"); \\
+builder.addAttributeParam("10"); \\
+builder.insertAttribute(); \\
+builder.addAttributeParam("String"); \\
+builder.addAttributeParam("nev"); \\
+builder.build(); \\
+
+Vessző karaktereknél és a ")" karakternél hívódik meg az insertAttribute metódus, ami beszúrja az attribútumot.
+
+
+\section{UPDATE lekérdezés felépítése}
+
+A következő lekérdezés érkezik az adatbázismotorhoz:
+\begin{sql}
+UPDATE azeroth SET x=30,y=40 WHERE mine.id = 10;
+\end{sql}
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/update}
+		\caption{Az UPDATE lekérdezés szintaxis diagramja}
+		\label{fig:updateSytnax}
+	\end{center}
+\end{figure}
+
 
 
 \section{Számítások optimalizálása}

@@ -235,9 +235,6 @@ Ha van x,y numbere, vagy location Point vagy Position attribútuma a user által
 \item OR 
 \item AND 
 \item IS 
-\item NULL
-\item CLOSEST TO
-\item FARTHEST FROM
 \item COLLIDE
 \item NOT
 \end{itemize}
@@ -264,9 +261,7 @@ SELECT mine FROM azeroth WHERE mine IS Mine;
 Az IS operátor az objektum típusának ellenőrzésére szolgál, az IS bal odlalán egy szimbólum, jobb oldalán pedig egy Class név kell szerepeljen.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine.x = 10 AND mine.y < 20;
-SELECT mine FROM azeroth WHERE mine.stone IS NULL;
 \end{sql}
-Egy referencia értéke lehet null, és itt azt is várjuk el a feltételben.
 
 A logikai műveletek a WHERE után kombinálhatóak is természetesen:
 \begin{sql}
@@ -283,18 +278,13 @@ SELECT mine FROM azeroth WHERE mine.x = 10 AND NOT (mine.y = 20 OR mine.id = 100
 Azokat a mineokat gyűjti ki, amelyek x attribútuma 10, és y attribútuma nem egyenlő 20, és az id-jük nem egyenlő 100-al.
 \begin{sql}
 
-\begin{sql}
-SELECT mine FROM azeroth WHERE mine NOT CLOSEST TO POINT(10, 10);
-\end{sql}
 
 Azokat a mineokat választja ki, amelyek nem a legközelebb helyeszkednek el a 10,10 ponthoz.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine NOT COLLIDE POINT(10, 10);
 \end{sql}
 Azokat a mineokat választja ki, amelyek nem tartalmazzák a 10, 10 pontot.
-\begin{sql}
-SELECT mine FROM azeroth WHERE 
-\end{sql}
+
 
 A kiértékelésben a zárójelnek szerepe lehet, ezt az eszközt a felhasználó kezébe adja az adatbázis.
 
@@ -357,25 +347,28 @@ DROP CLASS Mine;
 Osztálydefiníció megszüntetése. Csak olyan osztálydefiníciót lehet megszüntetni, amire nincs hivatkozás, azaz egyik mapen sincs belőle példány létrehozva.
 
 -ALTER: Szerkezetmódisító művelet. 
+Szerkezete módosítani csak az osztálydefinícióknak lehet. Ennek négy típusa van:
+
+
 \begin{sql}
 ALTER CLASS Mine ADDATTRIBUTE name String;
 \end{sql}
-Ezzel hozzáad a Class definícióhoz egy újabb attribútumot. A példányoknál ez autómatikusan null értéket fog felvenni(referenciáknál null, numbernélnél 0-át, stringnél "" üres stringet).
+Csak azoknál az osztályoknál lehet szerkezetet módosítani, amelyekből egyetlen példány sincs létrehozva az adatbázisban.
 
 \begin{sql}
 ALTER CLASS Mine RENAMEATTRIBUTE size TO name;
 \end{sql}
-Átnevezzünk egy attribútumot, innentől kezdve ezen a néven lehet rá hivatkozni.
+Át lehet nevezni egy attribútumot, innentől kezdve ezen a néven lehet rá hivatkozni.
 
 \begin{sql}
 ALTER CLASS Mine DELETEATTRIBUTE size;
 \end{sql}
-Törli a size attribútumát ennek a Mine Class definíciónak. Ez csak akkor lehetséges, ha nincs egyetlen példány sem létrehozva belőle.
+Törli a size attribútumát ennek a Mine Class definíciónak.
 
 \begin{sql}
 ALTER CLASS Mine RENAMECLASS BigMine;
 \end{sql}
-/*Az osztály nevének refactorálása.*/
+Az osztály nevének megváltoztatása.
 
 \section{DML adatkezelő utasítások}
 
@@ -384,7 +377,7 @@ DELETE: Objektum törlés. Objektum alatt létrehozott Class példányokat értj
 \begin{sql}
 DELETE mine FROM azeroth WHERE  mine IS Mine;
 \end{sql}
-/*Az összes Mine típusú elemet kitörli az azeroth térképről.*/
+Az összes Mine típusú elemet kitörli az azeroth térképről.
 \begin{sql}
 DELETE mine FROM azeroth;
 \end{sql}
