@@ -364,8 +364,72 @@ builder.addOperandPiece("10"); \\
 builder.build(); \\
 
 
+\section{INSERT lekérdezés felépítése}
+
+Az Insert lekérdezés fában tárolja az objektumhoz tartozó attribútumokat. A kompozíció miatt, az attribútumok is tartalmazhatnak olyan attribútumokat, amelyek objektumok, így ezek között szülő-gyermek relációt lehet felfedezni, ezért a legegyszerűbb megoldásnak a fában való tárolás tűnt.
+
+A  \ref{fig:insertTreeBuilder}. ábrán látható gráfokkal dolgozik az INSERT lekérdezés objektum. A bal oldali gráf az, amire szüksége van a lekérdezés objektumnak, viszont ezt a parser nem tudja előállítani, hisz az attribútumok és az értékek el vannak különítve egymástól a lekérdezésben. Látható, hogy a két jobboldali gráfból előállítható az, amelyikre az INSERT objektumnak szüksége van, ezt viszont az InsertBuilder osztály a háttérben elvégzi.
 
 
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.1]{images/InsertTreeBuilder}
+		\caption{Az INSERT lekérdezés adatábrázolása }
+		\label{fig:insertTreeBuilder}
+	\end{center}
+\end{figure}
+
+
+Az algoritmus az InsertBuilder gyártó osztály mögött:
+
+A parser amikor a builder segítségével felépíti a lekérdezésobjektumot, akkor igazából a háttérben két listát tölt fel, majd a builder fogja felépíteni az objektumot a háttérben. Azért van szükség két listára, mert a lekérdezésben az attribútumok leírása, és az értékek megadása elválasztva szerepel, és így nem lehet egy metódusban létrehozni az attribútumokat. 
+
+Az Insert osztályon belül található egy TreeBuilder osztály, amely TreeNode csomópontokat tárol, és építi fel őket.
+Amikor az InsertBuilder metódusai kívülről meghívódnak, ő az Insertből példányosított objektumnak a TreeBuilder metódusait hívja tovább.
+
+Attribútum lista: Ebben a listában tárolom az attribútumokat sorrendben, metaadatként tárolva azt, hogy beszúrást követően a fában a szülő felé kell e lépni, és ha igen, akkor hány szintet.A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a jobb felső sarokban lévőt tárolja.
+
+Érték lista: Ebben a listában tárolom a VALUES kulcsszó után feltüntetett értékeket. A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a jobb alsó sarokban lévőt tárolja.
+
+Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és ha mindkettőt feltöltötte a parser, akkor az összeillesztésükhöz már csak egy iterációt kell megvalósítani, és a builder tovább tud hívni az INSERT objektum felé úgy, hogy attribútumot, és mellé értéket is párosít.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/attrList}
+		\caption{Az INSERT szintaxis diagram attrList komponense}
+		\label{fig:attrListSytnax}
+	\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/valueList}
+		\caption{Az INSERT szintaxis diagram valueList komponense}
+		\label{fig:valueListSytnax}
+	\end{center}
+\end{figure}
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/insert}
+		\caption{Az INSERT lekérdezés szintaxis diagramja}
+		\label{fig:insertSytnax}
+	\end{center}
+\end{figure}
+
+
+\section{DROP lekérdezés felépítése}
+
+A DropBuilder implementálásakor semmilyen bonyodalomba nem ütköztünk.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/drop}
+		\caption{A DROP lekérdezés szintaxis diagramja}
+		\label{fig:dropSytnax}
+	\end{center}
+\end{figure}
 
 \section{Számítások optimalizálása}
 
