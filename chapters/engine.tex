@@ -36,6 +36,70 @@ Az adatbázismotor Parser komponense előállítja a lekérdezés objektumot, am
 \begin{comment}{Ide majd be kellene hivatkozni egy külön ábrát, vagy jelölni, hogy a komponenses ábrán mi hol zajlik éppen.}
 \end{comment}
 
+\subsection{Az ütközésvizsgálat megvalósítása}
+
+\begin{figure}[htb]
+\begin{center}
+    \includegraphics[scale=0.15]{images/collision}
+    \caption{Ütközés vizsgálat két alakzat között}
+    \label{fig:collision}
+\end{center}
+\end{figure}
+
+Az ütközés vizsgálatnak van egy másik fajtája is, amikor mozogni szeretnék egy entitással, és azt szeretnénk megvizsgálni, hogy egyik pontból a másikba mozogva ütközik-e valamely adatbázisban tárolt elemmel.
+
+Itt a csúszós hatás is garantálja az eljárás, a felhasználónak csak annyit kell kiadnia, hogy hova szeretné léptetni az entitást, a többit az adatbázismotor megoldja, az új pozíció vagy az lesz amit a felhasználó lekérdezés formájában megadott, vagy ha ütközött, akkor egy új pozíciót számol neki az adatbázis.
+
+Az UPDATE lekérdezés mindig visszaadja a módosított objektumokkal feltöltött mapet, tehát nem csak egy számot ad vissza, mint az Sql a módosított elemek számára vonatkozóan, hanem azokat egy az egyben vissza is adja.
+
+
+
+A \ref{fig:collision}. ábrán látható, hogy milyen elven oldottam meg a problémát. A bal fels\H o sarokban lév\H o zöld téglalap az entitás, amivel mozogni szeretnék. Minden entitást egy bal fels\H o sarok koordinátával és egy szélesség-magasság egész értékekkel lehet meghatározni az ütközésvizsgálat szempontjából. A bal fels\H o sarkából kiinduló egyenes köti össze a bal fels\H o sarkát azzal a ponttal, ahová mozogni szeretne az entitás. A jobb alsó sarokban lév\H o téglalap ez az objektum, amivel ütközést vizsgálok. Látható, hogy a bal fels\H o sarkához hozzátoltam a mozogni szándékozó entitást, és így kaptam egy nagyobb téglalapot.
+Az új téglalap négy határoló egyenesével megvizsgálom, hogy van-e metszéspontja annak az egyenesnek, ami az entitás bal fels\H o sarkából indul. Ha van, akkor ütközne, ha nincs egyik oldali egyenessel sem metszéspont, akkor az azt jelenti, hogy azzal az objektummal nem ütközik az entitás, ha oda lép. Természetesen ezt az eljárást minden pályaelemre meg kell ismételni.
+
+
+
+A \ref{fig:collision2}.ábrán a zöld téglalappal szeretnénk mozogni olyan pontba, ahol ütközne már a nagy piros téglalappal. A sárga téglalap lesz az, ahova lecsúszik majd az ütközést követ\H oen a zöld entitás.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[scale=0.15]{images/collision2.png}
+		\caption{Két alakzat ütközésének következménye}
+		\label{fig:collision2}
+	\end{center}
+\end{figure}
+
+Két egyenes metszéspontjának implementációja: Az implementáció sokkal egyszer\H ubbnek bizonyult homogén koordináta rendszerben, mint deascertes-ban. Míg descartesben fel kell írni az egyenesek egyenletét, majd implementálni egy olyan szolgáltatás, amely megold egy lineáris egyenletrendszert, addig ez homogén koordinátákkal sokkal egyszer\H ubb m\H uvelet.
+Két pontra illeszked\H o egyenes egyenlete homogén koordináta rendszerben: 
+\\
+e = ( a b c ) =$ \bordermatrix{~ &  &  &  \cr
+	& i & j & k\cr
+	& a_1 & a_2 & 1\cr
+	& b_1 & b_2 & 1\cr} = ( a_2 - b_2 , b_1 - a_1 , a_1b_2 - b_1a_2 )$
+\\
+Két egyenes metszéspontjának meghatározása:\\
+\\
+P = ( p1 p2 p3 ) = \bordermatrix{~ &  &  &  \cr
+	& i & j & k\cr
+	& a & b & c\cr
+	& e & f & g\cr} = ( bg - fc  ec - ag  af - eb )
+\\
+A P pont Descartes koordinátái:
+$ x = \cfrac{bg - fc}{af - eb} , y = \cfrac{ec - ag}{af - eb}$
+\cite{Banya5}
+
+
+Az alkalmazás a Collision interfészen keresztül veheti igénybe az ütközés vizsgálat számítást. Ez foglalja magába a homogén koordinátás implementációt.
+
+\begin{sql}
+UPDATE azeroth MOVE  mine TO Point(10,10) WHERE mine.id = "alma11"; 
+\end{sql}
+A fenti lekérdezéssel azokat ez objektumokat mozgatja el a (10,10) pontba, akinek van id attribútuma, és annak értéke alma11. Ilyenkor ütközést vizsgálva mozgat, tehát egyáltalán nem biztos, hogy a lekérdezés ereménye az lesz, hogy a feltételre megfelelő objektumok a (10,10) pontba kerülnek, mert lehet, hogy ütköznek, és olyankor az adatbázismotor számol nekik pozíciót.
+\begin{sql}
+UPDATE azeroth MOVE  mine.x TO 10 WHERE mine.id = "asd11"; 
+\end{sql}
+Ez a lekérdezés annyival másabb a fentinél, hogy itt nem mindkétt koordinátát módosítjuk, hanem vagy csak az x-et vagy csak az y-ont.
+
 \section{Lekérdezés objektumok}
 
 Az adatbázismotorhoz a beérkező lekérdezés stringként jön át, ezt a tokenizer feldolgozza, és minden csomopontnál meghív egy metódust, ami a lekérdezés objektumot építi fel. A lekérdezés objektum felépítése után meghívódik annak execute metódus, ami végrehajta azt.
@@ -284,6 +348,22 @@ UPDATE azeroth SET x=30,y=40 WHERE mine.id = 10;
 		\label{fig:updateSytnax}
 	\end{center}
 \end{figure}
+
+A parser ezeket a betódusokat hívja ebben a sorrendben ahhoz, hogy felépüljön a lekérdezés objktum:
+
+UpdateBuilder builder = new UpdateBuilder(); \\
+builder.createUpdate("azeroth"); \\
+builder.setType("SET"); \\
+builder.addSetAttribute("x"); \\
+builder.addSetAttributeValue(30); \\
+builder.addSetAttribute("y"); \\
+builder.addSetAttributeValue(40); \\
+builder.addOperandPiece("mine.id"); \\
+builder.addOperator("="); \\
+builder.addOperandPiece("10"); \\
+builder.build(); \\
+
+
 
 
 
