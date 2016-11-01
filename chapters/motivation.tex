@@ -1,34 +1,41 @@
-\Chapter{Domain specifikus lekérdezőnyelvek}
+\Chapter{Térképadatok kezelése}
 
-A DSL egy olyan nyelv, amely egy adott feladatkör problémáinak megoldására lett létrehozva. Magasabb absztrakciós szinten lehet vele a problémákat megfogalmazni.
-Elrejt alacsony szintű műveleteket, például változók felszabadítása.
+\section{Domain specifikus nyelvek}
+
+Domain specifikus nyelveknek (\textit{DSL - Domain Specific Language}) azokat nevezzük, amelyeket egy adott, specializált feladatkör problémáinak megoldására hoztak létre. Segítségükkel magasabb absztrakciós szinten lehet a problémákat megfogalmazni. Elrejt alacsony szintű műveleteket, mint például a szükséges modulok explicit kijelölését, az objektumok létrehozásának és lebontásának alacsony szintű műveleteit.
+
+A terület specifikus nyelv az alábbi módokon jelenhet meg.
 
 \begin{itemize}
-\item Milyen más területeken van szükség még domain specifikus nyelvekre?
-
-Beágyazott szkript nyelvek esetén beszélhetünk DSL nyelvről, ilyenkor valamilyen specializált feladat ellátását támogató kód készíthető a segítségével. Az SAP vállalatirányítási rendszerhez is készült DSL szkript nyelv. Az SAPScript az egy eszköz az SAP rendszeren belül, amely eszközt biztosít , hogy formokat tervezzünk, nyomtassunk, stb.
-
-Geoinformatika: A földmérés, távérzékelés, földrajz és térképészet új módszereit és lehetőségeit kutató tudomány. A térinformatikai rendszerek alkalmazása nagyon széles. A geográfiai adatok kezeléséhez is létrehoztak DSL nyelveket. Vannak olyan adatbázisok, melyek kifejezetten térkép adatok tárolására, és azok kezelésére lettek tervezve.
-
-
-\item A játékfejlesztésben milyen problémák vannak, amelyekre egy adatbázismotor megoldást tud adni?
-
-Térképadatok mellett, az üzleti logika perzisztens tárolását is lehetővé teszi.
-
-A játékfejlesztésben az ütközés vizsgálat megoldása amennyire fontos feladat, oly annyira nehéz is. Hogyan észleljük az ütközést és mi történjen ennek hatására?
-Ezen problémákkal nem kell a játékfejlesztőnek foglalkoznia, ezeket nyelvi szinten szolgáltatásként igénybe vehetik az adatbázismotortól.
-
-Az ütközésvizsgálat mellett az útvonal tervezés sem triviális feladat. Legrövidebb út meghatározása két pont között úgy, hogy közben a térképen lévő entitásokat kikerülje.
-
-A térkép felépítése nem a programozó feladata, ő lekérdezésekkel létrehozhatja azt.
-
-Entitások közötti távolság kiszámítása sem az üzleti logika fejlesztőinek feladata, az adatbázismotor elvégzi ezt is helyettük.
-
-
-
-\item Hogyan integrálható be egy ilyen szoftverkomponens/szoftvereszköz a fejlesztési folyamatba? \\
-1. Külső (external) DSL: Szintaktikája eltér a szoftver megírásához használt programozási nyelvétől. A külső DSL szintaktikája lehet saját fejlesztésű, vagy épülhet egy szabványos formátumra, például XML-re.
-Példák: reguláris kifejezések, SQL.
-
-2. Belső (internal) DSL: A befogadó nyelv egy kis részhalmazát használja, jellemzően a programozási eszközök egy szűk körére szorítkozik, vagy a nyelvet sajátos stílusban használja.
+\item \textit{Külső (external) DSL}: Szintaktikája eltér a szoftver megírásához használt programozási nyelvétől. A külső DSL szintaktikája lehet saját fejlesztésű, vagy épülhet egy szabványos formátumra, például XML-re. Ilyenek például a reguláris kifejezések leírásához használt nyelvek, illetve az SQL.
+\item \textit{Belső (internal) DSL}: A befogadó nyelv egy kis részhalmazára épül. Jellemzően a programozási eszközök egy szűk körére szorítkozik, vagy a nyelvet sajátos stílusban használja.
 \end{itemize}
+
+% Milyen más területeken van szükség még domain specifikus nyelvekre?
+
+A beágyazott szkript nyelvek között sok DSL nyelvet találhatunk. Ilyen esetben egy specializált feladat ellátását támogató kód készíthető a segítségével. Például az SAP vállalatirányítási rendszerhez is definiáltak  DSL szkript nyelvet. Az \textit{SAPScript} az egy eszköz az SAP rendszeren belül, amellyel formokat tervezhetünk, azokat egyszerűen nyomtathatjuk.
+
+A terület specifikus nyelv tehát adott problémakörben felmerülő feladatokra ad hatékony megoldást.
+
+\section{Térképadatbázisok}
+
+A térképadatok kezelési módja jelentősen eltér a hagyományosan táblázatos formában ábrázolható adatokétól. A geoinformatikában gyakran szükség van ilyen adatok nyilvántartására, például földmérés, távérzékelés és egyéb földrajzi adatok esetén. Ahhoz, hogy ez hatékonyan menjen végbe térképadatbázisokat hoztak létre, amelyek sajátos adattípusokat és műveleteket biztosítanak.
+
+\begin{comment}{Megnézni pár példát, hogy milyen implementációk, típusok és műveletek vannak!}
+\end{comment}
+
+% A játékfejlesztésben milyen problémák vannak, amelyekre egy adatbázismotor megoldást tud adni?
+
+\section{Térképek szerepe a játékfejlesztésben}
+
+A számítógépes játékok jelentős részében egy virtuálisan létrehozott világot járhatunk be.
+
+A játékfejlesztés során rengeteg olyan probléma felmerül, amely szorosan kötődik a térképekhez. Egy ilyen például az ütközés vizsgálata. Amennyiben nem szeretnénk, hogy a kiterjedéssel rendelkező objektumaink át tudjanak menni egymáson, ellenőrizni kell, hogy ütköznek-e. Erre a játékmotorok biztosítanak bizonyos funkciókat, viszont a játék egyedi vonásai, illetve a jobb teljesítmény érdekében a fejlesztőknek ezen gyakran módosításokat kell végeznie.
+
+Hasonló problémát jelent az útvonalak megtervezése. Ezt úgy érdemes megtenni, hogy az útvonal kikerüli a térképünkön lévő többi objektumot, miközben törekszik arra az algoritmus, hogy ez minél rövidebb legyen. Ez szintén nem triviális feladat, viszont gyakran szükség van rá.
+
+\section{Fejlesztést segítő szoftvereszközök}
+
+A szoftver fejlesztése során számos olyan probléma felmerül, amelyeket nem szeretnénk minden esetben újra megoldani. Térképek esetében ilyen például az említett ütközésvizsgálat és útvonaltervezés.
+
+A fejlesztők munkáját többféleképpen segíthetjük. Az algoritmusok közreadása mellett létrehozhatunk olyan függvénykönyvtárat, illetve adatbázis implementációt, amely a gyakran előforduló feladatokat segít megoldani egy jól definiált interfész megadásával. Ez esetben egy olyan terület specifikus lekérdezőnyelv adhatja a megoldást, amely egy kellőképpen általános adatmodellt, és műveleti részt definiál a térképadatok kezeléséhez. A dolgozatban egy ilyen nyelv bemutatására kerül sor. A fejlesztőknek így elegendő a nyelv felépítésével és használati módjával megismerkedni. A lekérdezések értelmezésének és végrehajtásának részleteit már nem kell ismerniük.

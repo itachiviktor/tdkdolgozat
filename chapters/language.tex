@@ -2,18 +2,15 @@
 
 \section{Alaptípusok}
 
-\begin{itemize}
+A lekérdezőnyelv típusos. Tartalmaz előre definiált típusokat (\textit{alaptípusok}, \textit{gyári típusok}), illetve a nyelv lehetőséget ad új típusok definiálására is (\textit{felhasználói típusok}).
 
-\item Boolean: Logikai adattípus.Ha paraméter nélkül hozzuk létre, akkor autómatikusan false értéket ad az adatbázisban tárolt adatok listájához.
+Az alaptípusok hierarchiáját \aref{fig:types} ábrán láthatjuk. Az élek itt tartalmazási kapcsolatot jelölnek. A nyelv csak kompozícióra ad lehetőséget.
 
-\begin{sql}
-INSERT Boolean() INTO azeroth;
-INSERT Boolean(true) INTO azeroth; 
-INSERT Boolean(false) INTO azeroth;
-INSERT Boolean(SELECT bool FROM azeroth WHERE bool IS Boolean AND bool.id = "bool11") INTO azeroth;
-\end{sql}
+A típusokból hasonlóképpen tudunk példányokat létrehozni, mint ahogy az objektum orientált programozási nyelvekben. A típus nevét követő zárójelekben adhatjuk meg a példány létrehozásához szükséges értékeket egy vesszővel elválasztott listában.
 
+Minden objektumnak a típusa mellett van azonosítója is. Ezt az \texttt{id} attribútumában tárolja. Értéket példányosításkor automatikusan kap. Az objektumtól le tudjuk azt kérdezni, viszont változtatni nem lehet.
 
+A következő szakaszokban az alaptípusok bemutatására kerül sor. A használati módjuk, paraméterezésük szemléltetéséhez már itt is lekérdezések szerepelnek, viszont azok részletes bemutatása majd csak a műveleti rész taglalásánál szerepel.
 
 \begin{figure}[htb]
 \begin{center}
@@ -23,107 +20,167 @@ INSERT Boolean(SELECT bool FROM azeroth WHERE bool IS Boolean AND bool.id = "boo
 \end{center}
 \end{figure}
 
-\item Number: Valós vagy egész szám 4 byteon való tárolására alkalmas
+\begin{comment}{A képet majd szépíteni kellene még kicsit. A négyzetrácsnak és a kék pontoknak nem kelllene látszódnia. (DIA-ban van külön export funkció ehhez.)}
+\end{comment}
+
+\subsection{Boolean}
+
+A \textit{Boolean} a nyelvben a logikai adattípus. Értéke \texttt{true} vagy \texttt{false} lehet. Paraméter nélküli létrehozás esetén az alapértelmezett értéke \texttt{false}. Az alábbi példákban az \texttt{azeroth} nevű térképre kerülnek beszúrásra logikai értékek.
+
+\begin{sql}
+INSERT Boolean() INTO azeroth;
+INSERT Boolean(true) INTO azeroth; 
+INSERT Boolean(false) INTO azeroth;
+INSERT Boolean(
+    SELECT bool FROM azeroth
+    WHERE bool IS Boolean AND bool.id = "bool11"
+) INTO azeroth;
+\end{sql}
+
+Az utolsó példából látható, hogy a logikai típusú objektum is teljes értékű objektum, így az is rendelkezik azonosítóval (\texttt{id}).
+
+\subsection{Number}
+
+A \textit{Number} típus valós vagy egész szám 4 byteon való tárolására alkalmas. A lekérdezőnyelv nem különböztet meg előjeles és előjel nélküli változatot.
+
 \begin{sql}
 INSERT Number(1.2) INTO azeroth;
 INSERT Number(12) INTO azeroth;
-INSERT Number(SELECT number FROM azeroth WHERE number IS Number AND number.id = "numberasd11") INTO azeroth;
-INSERT Number(SELECT number FROM azeroth WHERE number HAS x AND number.x IS Number AND number.id = "num11") INTO azeroth;
+INSERT Number(
+    SELECT number FROM azeroth
+    WHERE number IS Number AND number.id = "numberasd11"
+) INTO azeroth;
+INSERT Number(
+    SELECT number FROM azeroth
+    WHERE number HAS x AND number.x IS Number AND number.id = "num11"
+) INTO azeroth;
 \end{sql}
 
+\subsection{String}
 
-
-\item String: Szöveg tárolása.
+Szöveges értékek tárolására a \textit{String} típust használhatjuk.
 
 \begin{sql}
 INSERT String("alma") INTO azeroth;
-INSERT String(SELECT string FROM azeroth WHERE string IS String AND string.id="stringasd11") INTO azeroth;
+INSERT String(
+    SELECT string FROM azeroth
+    WHERE string IS String AND string.id = "stringasd11"
+)
+INTO azeroth;
 \end{sql}
 
+\subsection{Point}
 
-\item Vector: Irány tárolását teszi lehetővé.
-
-\begin{sql}
-INSERT Vector(10, 20) INTO azeroth;
-INSERT Vector(Number(10), Number(20)) INTO azeroth;
-INSERT Vector(Number(10), 20) INTO azeroth;
-INSERT Vector(10, Number(20)) INTO azeroth;
-INSERT Vector(SELECT vector FROM azeroth WHERE vector IS Vector AND vector.id="vetorasd11") INTO azeroth;
-\end{sql}
-
-Ilyenkor egy másik Vector objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
-
-\begin{sql}
-INSERT Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
-\end{sql}
-
-Ilyenkor a vector dx attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
-
-\begin{sql}
-INSERT Vector(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
-\end{sql}
-
-Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
-
-\begin{sql}
-INSERT Vector(Vector(10, 20)) INTO azeroth;
-\end{sql}
-
-\item Point: Egy pont, melynek nincs iránya. Két Number típust tartalmaz(x,y).
+A térképen az elemek helyét pontok adják, amelyet \textit{Point} típusú objektumokban tárolhatunk. A pontnak sem kiterjedése, sem iránya nincs. Tulajdonképpen két \textit{Number} típusú értéket fog össze egy egységbe. A pont koordinátáit a geometriában használatos $(x, y)$ párral adhatjuk meg.
 
 \begin{sql}
 INSERT Point(10, 20) INTO azeroth;
 INSERT Point(Number(10), Number(20)) INTO azeroth;
 INSERT Point(Number(10), 20) INTO azeroth;
 INSERT Point(10, Number(20)) INTO azeroth;
-INSERT Point(SELECT point FROM azeroth WHERE point IS Point AND point.id="pointasd11") INTO azeroth;
-\end{sql}
-
-Ilyenkor egy másik Point objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
-
-\begin{sql}
-INSERT Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
-\end{sql}
-
-Ilyenkor a point x attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
-\begin{sql}
-INSERT Point(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
-\end{sql}
-
-Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
-\begin{sql}
 INSERT Point(Point(10, 10)) INTO azeroth;
+INSERT Point(
+    SELECT point FROM azeroth
+    WHERE point IS Point AND point.id = "pointasd11"
+) INTO azeroth;
 \end{sql}
 
-\item Dimension: Egy szélesség és egy magasság number értéket tárol.
+Az utolsó beszúrás esetében egy másik \textit{Point} típusú objektumra hivatkozunk. Amennyiben annak az értéke változik valamelyik a kettő közül, akkor ennek is változni fog.
+
+\begin{sql}
+INSERT Point(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11", 10
+) INTO azeroth;
+\end{sql}
+
+Ilyenkor a pont \texttt{x} attribútuma egy másik \textit{Number} típusú objektumra mutat, tehát ha az változik, akkor a pont attribútuma is fog.
+
+\begin{sql}
+INSERT Point(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd12"
+) INTO azeroth;
+\end{sql}
+
+Ebben mind a két attribútuma más \textit{Number} objektumra mutat.
+
+\subsection{Vector}
+
+A \textit{Vector} típus itt a geometriai értelemben véve irány tárolását teszi lehetővé. A ponthoz hasonlóan ez is két \textit{Number} értéket fog össze, ennek viszont csak iránya van, helye nincsen.
+
+\begin{sql}
+INSERT Vector(10, 20) INTO azeroth;
+INSERT Vector(Number(10), Number(20)) INTO azeroth;
+INSERT Vector(Number(10), 20) INTO azeroth;
+INSERT Vector(10, Number(20)) INTO azeroth;
+INSERT Vector(Vector(10, 20)) INTO azeroth;
+INSERT Vector(
+    SELECT vector FROM azeroth
+    WHERE vector IS Vector AND vector.id = "vetorasd11"
+) INTO azeroth;
+\end{sql}
+
+Ilyenkor egy másik \textit{Vector} objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
+
+\begin{sql}
+INSERT Vector(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11", 10
+) INTO azeroth;
+\end{sql}
+
+Ilyenkor a vector \texttt{dx} attribútuma egy másik \textit{Number} objektumra mutat, tehát ha az változik, akkor ez is fog.
+
+\begin{sql}
+INSERT Vector(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd12"
+) INTO azeroth;
+\end{sql}
+
+A ponthoz hasonlóan itt is megadható függetlenül a két \textit{Number} érték.
+
+\subsection{Dimension}
+
+Egy szélesség és egy magasság értéket tárol. Mindkettő típusa \textit{Number}.
+
 \begin{sql}
 INSERT Dimension(10, 20) INTO azeroth;
 INSERT Dimension(Number(10), Number(20)) INTO azeroth;
 INSERT Dimension(Number(10), 20) INTO azeroth;
 INSERT Dimension(10, Number(20)) INTO azeroth;
-INSERT Dimension(SELECT dimension FROM azeroth WHERE dimension IS Dimension AND dimension.id="dimensionasd11") INTO azeroth;
-\end{sql}
-
-Ilyenkor egy másik Dimension objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
-
-\begin{sql}
-INSERT Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", 10) INTO azeroth;
-\end{sql}
-
-Ilyenkor a dimension width attribútuma egy másik Number objektumra mutat, tehát ha az változik, akkor ez is fog.
-
-\begin{sql}
-INSERT Dimension(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12") INTO azeroth;
-\end{sql}
-
-Itt mind a két attribútuma más Number objektumra mutat, viszont ez is járható út.
-\begin{sql}
 INSERT Dimension(Dimension(10,10)) INTO azeroth;
+INSERT Dimension(
+    SELECT dimension FROM azeroth
+    WHERE dimension IS Dimension AND dimension.id="dimensionasd11"
+) INTO azeroth;
 \end{sql}
 
-Ezzel a fenti példájára ugyan így megadható.
+Az utóbbi esetben egy másik Dimension objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog. Hasonlóan kezelhetjük az egyes esetek külön-külön hivatkozásokkal való megadását is, mint ahogy a pont és a vektor esetében.
 
-\item Rectangle: Téglalap tárolására szolgál.Tatralmaz egy Pointot, amiben tárolja a bal felső sarkának koordinátáit, illetve egy Dimensiont, melyek a szélesség és magasság attribútumok lesznek.
+\begin{sql}
+INSERT Dimension(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11", 10
+) INTO azeroth;
+INSERT Dimension(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd12"
+) INTO azeroth;
+\end{sql}
+
+Az utolsóban szintén itt is mind a két attribútuma más \textit{Number} típusú objektumra mutat.
+
+\subsection{Rectangle}
+
+A \textit{Rectangle} típus téglalap adatainak tárolására szolgál. Tartalmaz egy pontot, amelyben tárolja a bal felső sarkának koordinátáit, illetve egy kiterjedést, amely a szélesség és magasság attribútumokat adja.
 
 \begin{sql}
 INSERT Rectangle(Point(10,10), Dimension(100, 200)) INTO azeroth;
@@ -136,86 +193,147 @@ Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is vissz
 INSERT Rectangle(10, 10, 100, 200) INTO azeroth;
 INSERT Rectangle(10, 10, Dimension(100, 200)) INTO azeroth;
 INSERT Rectangle(Point(10, 10), 100, 200) INTO azeroth;
-INSERT Rectangle(SELECT rectangle FROM azeroth WHERE rectangle IS Rectangle AND id = "rectasd11") INTO azeroth;
-INSERT Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
+INSERT Rectangle(
+    SELECT rectangle FROM azeroth
+    WHERE rectangle IS Rectangle AND id = "rectasd11"
+) INTO azeroth;
+INSERT Rectangle(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd12",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd13",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd14"
+) INTO azeroth;
 \end{sql}
 
-Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.
-Attól függetlenül, hogy hozzuk létre a Rectangle-t(4 paraméterrel vagy máshogy),  ez tárolni egy Pointban és egy Dimensionben fogja.
+Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat egy másik objektumra.
+Attól függetlenül, hogy hozzuk létre a téglalapot, ezeket egy pont és egy kiterjedés objektumban fogja tárolni.
 
-\item Circle: Még egyeztetés alatt a létjogosultsága.
+\subsection{Circle}
 
+\begin{comment}{Még egyeztetés alatt a létjogosultsága.}
+\end{comment}
 
-\item Position: Ez egy olyan pont, aminek van iránya. Egy pont és egy vector.
+\subsection{Position}
+
+A pozíciók leírásához használhatjuk a \textit{Position} osztályt. Ennek van helye és iránya. Lényegében egy pont és egy vektor objektumot fog össze egy logikai egységbe.
+
 \begin{sql}
-INSERT Position(Point(10, 10),  Vector(100, 100)) INTO azeroth;
+INSERT Position(Point(10, 10), Vector(100, 100)) INTO azeroth;
 INSERT Position(Position(10, 10, 100, 100)) INTO azeroth;
 \end{sql}
 
-Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.
+A pozíciókat közvetlenül az attribútumok értékeivel, vagy pedig részlegesen a részobjektumaival is példányosíthatjuk.
 
 \begin{sql}
 INSERT Position(10, 10, 100, 200) INTO azeroth;
 \end{sql}
-Ilyenkor a sorrend x,y,dx,dy.
+
+Ebben az esetben a sorrend \texttt{x}, \texttt{y}, \texttt{dx} és \texttt{dy}. 
+
 \begin{sql}
 INSERT Position(10, 10, Vector(100, 200)) INTO azeroth;
 INSERT Position(Point(10, 10), 100, 200) INTO azeroth;
-INSERT Position(SELECT position FROM azeroth WHERE position IS Position AND id = "posasd11") INTO azeroth;
-INSERT Rectangle(SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd11", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd12", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd13", SELECT number FROM azeroth WHERE number is Number AND number.id = "numasd14") INTO azeroth;
+INSERT Position(
+    SELECT position FROM azeroth
+    WHERE position IS Position AND id = "posasd11"
+) INTO azeroth;
+INSERT Rectangle(
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd11",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd12",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd13",
+    SELECT number FROM azeroth
+    WHERE number is Number AND number.id = "numasd14"
+) INTO azeroth;
 \end{sql}
 
-Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat valamire.
+Ezekben is, az előzőekhez hasonlóan objektum hivatkozások jönnek létre a példányosítás során.
 
-\item Node: Olyan Position, ami tartalmaz egy referenciát a következő Nodera. Ezzel egy láncolt Nodeok halmazát kapjuk, a sorrendiség adott a láncolt listából, hisz mindegyik Node az utána következőre mutat. Ezzel felírható egy egyenes, vagy útvonal. 
-INSERT Node(Node(10, 10, 100, 100, NULL)) INTO azeroth; 
+\subsection{Node}
 
-Itt úgy hozunk létre Nodeot, hogy a szimpla kifejezéssel, és a NULL az azt jelenti, hogy ő már nem mutat további Nodera, lehet hogy rá sem mutat semmi, akor ez egyenlőre egy szimpla Positionként funkcionál.
+A nyelv a dinamikus adatszerkezetek leírását láncolással oldja meg. Az alkalmazási területeket figyelembe véve általában pozíciók láncolására lehet szükség. A \textit{Node} típus egy pozíció típusú attribútumot és egy hivatkozást tartalmaz a következő \textit{Node} objektumra. Ennek a segítségével megadhatunk útvonalakat, fákat vagy általános irányított gráfokat.
+
+\begin{sql}
+INSERT Node(Node(10, 10, 100, 100, NULL)) INTO azeroth;
+\end{sql}
+
+A csomópontnak ekkor a pozícióra jellemző attribútumait egészítjük ki egy referenciával. A \texttt{NULL} ez esetben a sehova sem mutató, érvénytelen referenciát jelenti.
+
+\begin{comment}{Egységesen kellene a true, false-al!}
+\end{comment}
 
 \begin{sql}
 INSERT Node(10, 10, 100, 100, NULL) INTO azeroth;
-INSERT Node(10, 10, 100, 100, SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
+INSERT Node(10, 10, 100, 100,
+    SELECT node FROM azeroth
+    WHERE node IS Node AND node.id = "nodeasd11"
+) INTO azeroth;
 \end{sql}
-Itt már úgy hozunk létre egy Nodeot, hogy az egy másik Nodera mutat, egy már létező Node objektumra.
+
+Itt már úgy hozunk létre egy csomópontot, hogy az egy másik, már létező csomópontra mutat.
+
 \begin{sql}
 INSERT Node(10, 10, 100, 100, Node(200, 200, 2000, 2000, NULL)) INTO azeroth;
 \end{sql}
-Ez a megoldás is járható út, ilyenkor a belső Node objektumra fog mutatni, ami viszont ilyenkor még nincs a mapen, de ez így hozzáteszi azzal, hogy ő hivatkozik rá a láncban.
+
+A nyelv ezt a megoldást is lehetővé teszi. Ilyenkor a belső csomópont objektumra fog mutatni, ami viszont ilyenkor még nincs a térképen, de ez így egyúttal létre is hozza, hogy ő hivatkozik rá a láncban.
+
 \begin{sql}
 INSERT Node(10, 10, 100, 100, NULL, true) INTO azeroth;
 \end{sql}
-Ha 5. paraméternek beírunk egx truet, akkor azt jelenti, hogy ez egy Lánc első eleme, innen indul ki az összes többi(Ha az utolsó elem erre mutat, akkor kapunk egy körutat.)
+
+Ha az 5. paraméternek egy \texttt{true} értéket adunk meg, akkor az azt jelenti, hogy ez egy Lánc első eleme, innen indul ki az összes többi. (Amennyiben az utolsó elem erre mutat, akkor kapunk egy körutat.)
+
 \begin{sql}
 INSERT Node(10,10, 100, 100, NULL, false) INTO azeroth;
 \end{sql}
-Így is létrehozható egy Node, ez az alapértelmezett, tehát ha nem tüntetjük fel, hogy false, akkor alapértelmezés szerint false lesz annak a booleannak az értéke, ami azt jelzi, hogy ez a Node olyan-e, amiből kiindul egy út.
+
+Így is létrehozható egy csomópont. Ez az alapértelmezett eset, tehát ha nem tüntetjük fel, hogy az utolsó paraméter értéke \texttt{false}, akkor alapértelmezés szerint ugyanezt kapjuk.
+
+\begin{comment}{Ennek az utolsó paraméternek majd még utána kell gondolni!}
+\end{comment}
+
 \begin{sql}
 INSERT Node(10,10, 100, 100) INTO azeroth;
 \end{sql}
-Ha elhadjuk azt a paramétert, ami a következő Nodera mutatna, akkor azzal sincs semmi gond, mert az autómatikusan beilleszti oda a NULL értéket.
+Ha elhagyjuk azt a paramétert, ami a következő csomópontra mutatna, akkor azzal sincs semmi gond, mert az automatikusan beilleszti oda a NULL értéket.
 
-\item Path: Node-ok halmaza.
+\subsection{Path}
 
-\begin{sql}
-INSERT Path(Node(10,10,10,10), Node(10,20), Node(10,10,100,35)) INTO azeroth;
-\end{sql}
-
-Itt az útvonal úgy jön létre, hogy a paraméterlistában szereplő Nodeokat úgy hozza létre, hogy paraméterlistában való elhelyezkedés szerint adja értékül a next értéknek mindig a következőt. Az utolsó elem NULL- ra mutat. Az első elemre ha nem körútról van szó , akkor nem mutat semmi. Minden Node objektumnak van egy isFirst Boolean attribútuma, ami csak az első elemnek vesz fel true értéket, hogy tudjuk honnan indul az útvonal. Ez az isFirst a Path létrehozási mechanizmusban autómatikusan kap értéket, erről a felhasználónak nem kell gondoskodnia.
-Látható, hogy az egyik Node-ot kevesebb(mindössze kettő paraméterrel) hoztuk létre. Ez nem jelent semmi problémát, ilyenkor az irány nincs megadva, de arra nem is feltétlenül van szükség.
-A Node adattípus leírásánál elmondtuk, hogy Node(10,10,10,10) létrehozva úgy, hogy nem adjuk meg a következő Nodera mutató elemet, akkor az autómatikusan NULL lesz, viszont ha ez Path() inicializálásnál történik, akkor a Path inicializálás ad neki értéket.
+A \textit{Path}, útvonal típus csomópontok halmazát tárolja.
 
 \begin{sql}
-INSERT Path(SELECT node FROM azeroth WHERE node IS Node AND node.id = "nodeasd11") INTO azeroth;
+INSERT Path(
+    Node(10,10,10,10),
+    Node(10,20),
+    Node(10,10,100,35)
+) INTO azeroth;
 \end{sql}
 
-Egy Path nem hozható létre úgy, hogy  meglévő Nodeok összegyűjtéséből. Tehát a Path inicializálásnál nem szerepelhet egyetlen Select sem, mert az hibát jelent.
+Itt az útvonal úgy jön létre, hogy a paraméterlistában szereplő csomópontokat úgy hozza létre, hogy paraméterlistában való elhelyezkedés szerint adja értékül a \texttt{next} értéknek mindig a következőt. Az utolsó elem \texttt{next} attribútuma \texttt{NULL} értéket kap.
 
-Egy objektum ha referenciát tartalmaz egy másik objektumra akkor az eléri bármikor a hivatkozottat, viszont a hivatkozott nem tud hivatkozni arra aki rá hivatkozik, erre nincs nyelvi elem definiálva, hisz szükségtelen, nagyon kevés alkalmazhatósága lenne, így kimaradt a lekérdező nyelv készletéből.
+Minden csomópont objektumnak van egy \texttt{isFirst} logikai típusú attribútuma, ami csak az első elemnek vesz fel igaz értéket, hogy tudjuk honnan indul az útvonal. Ez az \texttt{isFirst} az útvonal létrehozási mechanizmusban automatikusan kap értéket, erről a felhasználónak nem kell gondoskodnia.
 
-Mit követeljünk meg number x, number y vagy Point xy ?
-Ha van x,y numbere, vagy location Point vagy Position attribútuma a user által definiált classnak, akkor végezhető vele distanceFrom, Collide, stb...
+Látható, hogy az egyik csomópontot kevesebb (mindössze kettő paraméterrel) hoztuk létre. Ez nem jelent semmi problémát, ilyenkor az irány nincs megadva, de arra nem is feltétlenül van szükség.
 
-\end{itemize}
+A \textit{Node} adattípus leírásánál elmondtuk, hogy a \texttt{Node(10, 10, 10, 10)} hívással nem adjuk meg a következő Nodera mutató elemet, így az autómatikusan NULL lesz. Amennyiben ez  \textit{Path} inicializálásnál történik, akkor a következő csomópont hivatkozását kapja meg (amennyiben nem az utolsó helyen szerepel a paraméter).
+
+\begin{sql}
+INSERT Path(
+    SELECT node FROM azeroth
+    WHERE node IS Node AND node.id = "nodeasd11"
+) INTO azeroth;
+\end{sql}
+
+Egy útvonal nem hozható létre a meglévő csomópontok összegyűjtéséből. Az útvonal inicializálásnál nem szerepelhet egyetlen szelekciós utasítás sem, mert az hibákhoz vezetne.
+
+Egy objektum ha referenciát tartalmaz egy másik objektumra akkor az eléri bármikor a hivatkozottat, viszont a hivatkozott nem tud hivatkozni arra aki rá hivatkozik. Erre nincs nyelvi elem definiálva, hisz a gyakorlatban ritkán van erre szükség, kevés esetben lenne alkalmazható, így kimaradt a lekérdező nyelv eszközkészletéből.
 
 \section{Támogatott operátorok}
 \begin{itemize}
