@@ -30,11 +30,9 @@ Az XML és JSON nyelvek egyaránt alkalmasak a térkép, és a rajta lévő enti
 Az adatbázis motor és a Driver között a kommunikáció (\textit{az adatok tárolási módjához hasonlóan szintén}) JSON alapú. Ez lehetővé teszi, hogy a Driver és az adatbázismotor más nyelven legyen implementálva. Számítógépes játékokat implementálhatnak például C, C++, C\#, Java nyelveken, és ahhoz, hogy mindegyikkel kompatibilis legyen az adatbázismotor, ahhoz rosszabb esetben arra lenne szükség, hogy a motort minden nyelven implementáljuk. Ez nagyon fejlesztést tenne szükségessé, ehelyett csak egy drivert kell implementálni ezen nyelvekhez, amely kommunikál az adatbázis motorral. A projektre nézve a későbbiekben nem csak Java nyelven írt drivert szeretnénk, hanem C++ és C\# is a tervek között van.
 
 \subsection{Lekérdezések kiértékelése}
+A \ref{fig:database}. ábrán szemléltetjük a lekérdezés feldolgozásának és kiértékelésének folyamatát. A kliens a driveren keresztül kiad egy executeQuery(String query) hívást, amelyben a lekérdezés az egy karakterlánc, és ez adódik át a Parser komponensnek. Az adatbázismotor Parser komponense a lekérdezésobjektumokat a builder osztályok metódusaival építi fel. Ezt követően az előállított lekérdezés objektumnak meghívódik az execute metódusa, és ennek eredménye SELECT esetén egy lista ami objektumokat tartalmaz. Ezt a listát a motor átadja a JSON Serializer komponensnek, ami előállítja ebből a listából a JSON-t, amit továbbít a Drivernek, aminek a JSON Deserializer komponense foglya feldolgozni, és előállít belőle egy eredmény listát. A Driver a kliens program számára már értelmezhető formában adja vissza az eredmény listát. Ez a körfolyamat játszódik le minden lekérdezés esetén.
 
-Az adatbázismotor Parser komponense előállítja a lekérdezés objektumot, aminek execute metódusát végrehajtja, és ennek eredménye SELECT esetén egy lista ami objektumokat tartalmaz. Ezt a listát átadjuk a JSON Serializer komponensnek, ami előállítja ebből a listából a JSON-t, amit továbbít a Drivernek, aminek a JSON Deserializer komponense foglya feldolgozni, és előállít belőle egy eredmény listát. A Driver a kliens program számára már értelmezhető formában adja vissza az eredmény listát. Ez a körfolyamat játszódik le minden lekérdezés esetén.
 
-\begin{comment}{Ide majd be kellene hivatkozni egy külön ábrát, vagy jelölni, hogy a komponenses ábrán mi hol zajlik éppen.}
-\end{comment}
 
 \subsection{Az ütközésvizsgálat megvalósítása}
 
@@ -368,7 +366,7 @@ builder.build(); \\
 
 Az Insert lekérdezés fában tárolja az objektumhoz tartozó attribútumokat. A kompozíció miatt, az attribútumok is tartalmazhatnak olyan attribútumokat, amelyek objektumok, így ezek között szülő-gyermek relációt lehet felfedezni, ezért a legegyszerűbb megoldásnak a fában való tárolás tűnt.
 
-A  \ref{fig:insertTreeBuilder}. ábrán látható gráfokkal dolgozik az INSERT lekérdezés objektum. A bal oldali gráf az, amire szüksége van a lekérdezés objektumnak, viszont ezt a parser nem tudja előállítani, hisz az attribútumok és az értékek el vannak különítve egymástól a lekérdezésben. Látható, hogy a két jobboldali gráfból előállítható az, amelyikre az INSERT objektumnak szüksége van, ezt viszont az InsertBuilder osztály a háttérben elvégzi.
+A  \ref{fig:insertTreeBuilder}. ábrán látható gráfokkal dolgozik az INSERT lekérdezés objektum. A jobb oldali gráf az, amire szüksége van a lekérdezés objektumnak, viszont ezt a parser nem tudja előállítani, hisz az attribútumok és az értékek el vannak különítve egymástól a lekérdezésben. Látható, hogy a két baloldali gráfból előállítható az, amelyikre az INSERT objektumnak szüksége van, ezt viszont az InsertBuilder osztály a háttérben elvégzi.
 
 
 
@@ -388,9 +386,9 @@ A parser amikor a builder segítségével felépíti a lekérdezésobjektumot, a
 Az Insert osztályon belül található egy TreeBuilder osztály, amely TreeNode csomópontokat tárol, és építi fel őket.
 Amikor az InsertBuilder metódusai kívülről meghívódnak, ő az Insertből példányosított objektumnak a TreeBuilder metódusait hívja tovább.
 
-Attribútum lista: Ebben a listában tárolom az attribútumokat sorrendben, metaadatként tárolva azt, hogy beszúrást követően a fában a szülő felé kell e lépni, és ha igen, akkor hány szintet.A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a jobb felső sarokban lévőt tárolja.
+Attribútum lista: Ebben a listában tárolom az attribútumokat sorrendben, metaadatként tárolva azt, hogy beszúrást követően a fában a szülő felé kell-e lépni, és ha igen, akkor hány szintet.A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal felső sarokban lévőt tárolja.
 
-Érték lista: Ebben a listában tárolom a VALUES kulcsszó után feltüntetett értékeket. A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a jobb alsó sarokban lévőt tárolja.
+Érték lista: Ebben a listában tárolom a VALUES kulcsszó után feltüntetett értékeket. A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal alsó sarokban lévőt tárolja.
 
 Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és ha mindkettőt feltöltötte a parser, akkor az összeillesztésükhöz már csak egy iterációt kell megvalósítani, és a builder tovább tud hívni az INSERT objektum felé úgy, hogy attribútumot, és mellé értéket is párosít.
 

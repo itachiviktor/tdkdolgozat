@@ -20,9 +20,6 @@ A következő szakaszokban az alaptípusok bemutatására kerül sor. A használ
 \end{center}
 \end{figure}
 
-\begin{comment}{A képet majd szépíteni kellene még kicsit. A négyzetrácsnak és a kék pontoknak nem kelllene látszódnia. (DIA-ban van külön export funkció ehhez.)}
-\end{comment}
-
 \subsection{Boolean}
 
 A \textit{Boolean} a nyelvben a logikai adattípus. Értéke \texttt{true} vagy \texttt{false} lehet. Paraméter nélküli létrehozás esetén az alapértelmezett értéke \texttt{false}. Az alábbi példákban az \texttt{azeroth} nevű térképre kerülnek beszúrásra logikai értékek.
@@ -212,10 +209,16 @@ INSERT Rectangle(
 Itt mind a 4 paraméter egy lekérdezés eredménye, azaz mind mutat egy másik objektumra.
 Attól függetlenül, hogy hozzuk létre a téglalapot, ezeket egy pont és egy kiterjedés objektumban fogja tárolni.
 
-\subsection{Circle}
+\subsection{Oval}
 
-\begin{comment}{Még egyeztetés alatt a létjogosultsága.}
-\end{comment}
+Az \textit{Oval} típus ovális alakzatok tárolását teszi lehetővé. 
+
+\begin{sql}
+INSERT Oval(x,y,width,height) INTO azeroth 
+VALUES(10,300,12,32);
+\end{sql}
+
+A fenti lekérdezés eredménye, hogy egy olyan oválist illeszt az "azeroth" nevű térképre, aminek a bal felső befoglaló téglalapjának a sarka a (10,300) pontra esik, a szélessége 12, a magassága 32. 
 
 \subsection{Position}
 
