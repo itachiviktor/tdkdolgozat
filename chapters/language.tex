@@ -1,5 +1,45 @@
 \Chapter{A lekérdezőnyelv}
 
+\section{Az adatbázis szerkezete}
+
+A lekérdezőnyelv bemutatása előtt érdemes megnézni, hogy az adatbázis hogyan épül fel, és a nyelv egyes funkciói milyen gyakorlati problémákat oldanak meg. Ehhez a következő fogalmak tisztázására van szükségünk.
+\begin{itemize}
+\item \textit{adatbázis}: Az adatbázis a kezelendő adatok legnagyobb logikai egységét jelenti. Ez tartalmaz térképeket, osztálydefiníciókat.
+\item \textit{térkép}: Az objektum példányok adatbázishoz kötődnek.
+\item \textit{osztály}: A tárolandó elemek szerkezetét (\textit{sémáját}) írják le az osztálydefiníciók. Az alaptípusok esetében azokat az adatbázis közvetlenül biztosítja. Osztályokat a felhasználók is definiálhatnak, amelyeket azt követően az alaptípusokhoz hasonlóan tudnak majd használni.
+\item \textit{objektum}: Az osztályokból objektumokat példányosíthatunk, ha megadjuk az e\-gyes attribútumok értékeit. Ezek az objektum példányok az adott térképhez kötődnek.
+\item \textit{réteg}: A térképeknek van egy saját, lazább logikai felbontása, amely az objektumok egy diszjunkt csoportosítását adja. Azon objektumok, amelyek rendelkeznek pozícióval tartalmaznak még egy réteg azonosítót.
+\item \textit{entitás}: Egy \texttt{Entity} alaptípusból létrehozott példány. Ezek azok, amelyek a térképen ténylegesen meg is fognak jelenni.
+\end{itemize}
+
+A következő szakaszok arra térnek ki, hogy a gyakorlatban előforduló gyakori problémákat milyen formában oldhatjuk meg a lekérdezőnyelv segítségével majd.
+
+\subsection{Alkalmazáslogika kezelése}
+
+Az adatbázisban tárolt elemekhez gyakran szükség lehet olyan további metaadatok megadására, amely az alkalmazáslogika kialakítása szempontjából lesz majd fontos. Ezeket a többletinformációkat saját osztályok definiálásával tudjuk megadni. Ez nagyon hasonló az SQL-ben a táblák sémájának definiálásához. Osztályok definiálási módjára a \texttt{CREATE} kifejezés bemutatásánál láthatunk majd példákat.
+
+\subsection{Rétegkezelés}
+
+Az adatbázis egy térképen belül rétegeket is értelmez. A térképek eredendően kétdimenziósak, ezzel viszont egy diszkrét, harmadik dimenziót is kapunk. Ez akkor lehet hasznos, amikor például ütközés vizsgálatnál a különböző szinteken lévő elemek ütközését külön-külön szeretnénk vizsgálni.
+
+Két alapértelmezett attribútumot bevezetése volt szükség, úgy mint
+\begin{itemize}
+\item \texttt{zlayer}: A réteg azonosítószáma.
+\item \texttt{zindex}: A rétegen belül egy sorszám, amely egyedi az objektumra nézve a rétegen belül.
+\end{itemize}
+
+A réteg és az index tehát az objektumot egyértelműen azonosítja. Ami miatt mégis szükség van az \texttt{id} azonosítóra, mert a réteg és az index is változtatható, ami egy azonosítónál nem szerencsés, illetve vannak nem réteghez kötött objektumok is.
+
+Ha két elem más szinten van, akkor a \texttt{zlayer} attribútumuk értéke eltérő. Különböző rétegekben lévő objektumok között az ütközésvizsgálat nincs értelmezve.
+
+A \texttt{zindex} attribútum megjelenítésnél a kirajzolási sorrend miatt érdekes. Mivel a rétegen belül nincs más sorrendi megkötés, ezért a takarási feladat csak így oldható meg.
+
+Összefoglalva tehát minden objektumnak van \texttt{id}, \texttt{className}, \texttt{zlayer} és \texttt{zindex}.
+
+\subsection{Térkép mentése és visszaállítása}
+
+Az alkalmazások tipikusan a futtatások között is tárolják az adatokat. Az adatbázis használatának egyik nagy előnye, hogy így a program megírásánál a perzisztenciával már nem kell foglalkozni, mivel azt az adatbázis meg tudja oldani. Térképeket egyszerűen létre tudunk hozni, el tudjuk menteni benne az adatokat, illetve vissza tudjuk azokat tölteni.
+
 \section{Alaptípusok}
 
 A lekérdezőnyelv típusos. Tartalmaz előre definiált típusokat (\textit{alaptípusok}, \textit{gyári típusok}), illetve a nyelv lehetőséget ad új típusok definiálására is (\textit{felhasználói típusok}).
@@ -568,71 +608,90 @@ DELETE mine FROM azeroth;
 \end{sql}
 lekérdezéssel tehetjük meg.
 
-\section{DQL lekérdező utasítások}
+\section{DQL szelekciós lekérdezések}
 
-A mine egy kifejezés, amin keresztül elérhetjük az összes  azeroth mapen lévő objektumot. A SELECT után csak egy ilyen kifejezés állhat. Ez azt csinálja, hogy visszaad egy halmazt, amiben minden elem ami a térképen megtalálható(point,rectangle) benne van szűkítés nélkül.
+\subsection{Lekérdezések attribútum meglétének vizsgálatával}
+
+Az SQL-hez hasonlóan ebben a nyelvben is a \texttt{SELECT} kulcsszó szolgál a szelekciós lekérdezés megadásához. Például a
 \begin{sql}
-SELECT mine From azeroth;
+SELECT mine FROM azeroth;
 \end{sql}
+lekérdezés az \texttt{azeroth} nevű térkép összes objektumát vissza fogja adni. Az eredmény egy objektum halmaz lesz, amelynek így nincs rendezettsége.
 
-
-Az alábbi lekérdezés visszaadja azon elemek halmazát az "azeroth" térképről, melyeknek van x attribútumuk, és azoknak az attribútumoknak a halmazát adná(itt Number típusú x-ek lennének az eredmény halmazban.)
+A szelekciós kifejezésben kijelölhetjük az attribútumot is, amelynek az értékét vissza szeretnénk kapni. Például a
 \begin{sql}
-SELECT mine.x from azeroth;
+SELECT mine.x FROM azeroth;
 \end{sql}
+lekérdezés az összes objektum \texttt{x} attribútumával tér vissza. Ekkor a lekérdezés implicit módon ellenőrzi, hogy az adott attribútummal rendelkezik-e az objektum.
 
-
-Az alábbi lekérdezésben arra láthatunk példát, amikor a kifejezés több attribútum láncolását tartalmazza. Ekkor Lekérdezi az összes Mine típusú objektum x attribútumát.
+Az alábbi lekérdezésben arra láthatunk példát, amikor a kifejezés több attribútum láncolását tartalmazza. Ekkor Lekérdezi az összes \texttt{Mine} típusú objektum \texttt{x} attribútumát.
 \begin{sql}
 SELECT mine.stone.location.x FROM azeroth WHERE mine IS Mine;
 \end{sql}
+Ekkor az értelmező sorban lekérdezi, hogy a megfelelő attribútumokkal rendelkeznek-e az attribútumként szereplő objektumok is.
 
-
-- Halmazműveletek a lekérdezésekben:
-
-Két halmaz különbségét az alábbi lekérdezéssel lehetne megoldani(ez a jelenlegi implementációban nincs benne, inkább csak jövőbeli terv).
+Az attribútumok meglétének implicit vizsgálatára érdemes figyelni a nyelv használata közben. Például a
 \begin{sql}
-Select mine from azeroth where mine.x < 100 Difference Select mine from azeroth where mine.y > 10; 
+SELECT mine.x FROM azeroth;
+\end{sql}
+az \texttt{azeroth} térképen lévő összes \texttt{x} attribútum értéket adja vissza, míg a
+\begin{sql}
+SELECT mine FROM azeroth WHERE mine HAS x;
+\end{sql}
+azokkal a \texttt{Mine} osztályhoz tartozó objektumokkal tér vissza, amelyeknek van \texttt{x} attribútuma.
+
+\subsection{Halmazműveletek}
+
+Két halmaz különbségét az alábbi lekérdezéssel lehet megoldani.
+\begin{sql}
+SELECT mine FROM azeroth WHERE mine.x < 100
+    DIFFERENCE
+SELECT mine FROM azeroth WHERE mine.y > 10; 
 \end{sql}
 
-A fenti lekérdezés csak egy terv, viszont az adatbázismotorban ettől függetlenül meglehet valósítani a két halmaz különbségét megvalósító lekérdezést, méghozzá logikai operátorral.
+A lekérdezés természetesen logikai kifejezéssel is megvalósítható. (Az adatbázis jelenlegi változata az utóbbi lekérdezési módot támogatja.)
 
 \begin{sql}
-Select mine from azeroth where (mine.x < 100 AND NOT mine.y > 10); 
+SELECT mine FROM azeroth WHERE (mine.x < 100 AND NOT mine.y > 10); 
 \end{sql}
 
-Két halmaz metszete a következő lekérdezéssel lenne megoldható a tervek szerint:
+Két halmaz metszete a következőképpen kérdezhető le.
 \begin{sql}
-Select mine from azeroth where mine.x < 100 Cutaway Select mine from azeroth where mine.y > 10 Cutaway Select mine From azeroth where mine IS Mine;
+SELECT mine FROM azeroth WHERE mine.x < 100
+    INTERSECT
+SELECT mine FROM azeroth WHERE mine.y > 10
+    INTERSECT
+SELECT mine FROM azeroth WHERE mine IS Mine;
 \end{sql}
-Itt látható, hogy két alkalommal is szerepel a halmazművelet kulcsszava.Ilyenkor sorrendben végrehajtja, azaz először kivonja az első két halmazt egymásból, majd annak eredményéből kivonja az utolsó halmazt.
-Könnyű belátni, hogy ez a  halmazművelet is helyettesíthető logikai kifejezésekkel.
-
-
-Az alábbi lekérdezés teljesen ekvivalens a fenti lekérdezésekkel, melyekben két AlSELECT lekérdezés van, ugyanis azokat az elemeket rakjuk a halmazba melyek x attribútuma 100-nál kisebb, viszont y kisebb mint 10, ez felcserélődik.
+Itt látható, hogy két alkalommal is szerepel a halmazművelet kulcsszava. A metszer művelet kommutatív és asszociatív így a végrehajtás sorrendjéről az adatbázismotor dönt. Könnyű belátni, hogy ez a  halmazművelet is helyettesíthető logikai kifejezésekkel. Az alábbi lekérdezés teljesen ekvivalens az előzővel.
 \begin{sql}
-Select mine from azeroth where mine.x < 100 AND mine.y <= 10;
+SELECT mine FROM azeroth WHERE mine.x < 100 AND mine.y <= 10;
 \end{sql}
 
-
-Két halmaz Uniójára sincs definiált kulcsszó vagy metódus jelenleg az adatbázismotorba implementálva, viszont logikai operátorokkal ez a funkció is megvalósítható:
+Két halmaz uniójának kiszámításához az \texttt{UNION} kulcsszó használható, például
 \begin{sql}
-Select mine from azeroth where mine.x < 100 OR mine.y <= 10;
+SELECT mine FROM azeroth WHERE mine.x < 100
+    UNION
+SELECT mine FROM azeroth WHERE mine.y > 10
 \end{sql}
-
-
-Az alábbi két lekérdezés közötti különbség:
+Ez szintén kiváltható a \texttt{WHERE} után szereplő megfelelő logikai kifejezéssel:
 \begin{sql}
-Select mine.x From azeroth; 
+SELECT mine FROM azeroth WHERE mine.x < 100 OR mine.y > 10;
 \end{sql}
-Ez visszaadja az összes x attribútumot ami a pályán található
+
+\subsection{Ütközések vizsgálata}
+
+Az ütközések vizsgálatához a \texttt{COLLIDE} kulcsszót használhatjuk. A kulcsszó után olyan objektumot kell megadni, amelynek van pozíciója, opcionálisan kiterjedése is. A pontokra és téglalap alakú területekre vonatkozó vizsgálatokra gyakrabban szükség van, ezért azt szögletes zárójelekben megadott megadott értékekkel is leírhatjuk. Amennyiben két számérték szerepel, az a pont $(x, y)$ koordinátáját jelenti. 4 paraméter esetén az utolsó kettő a téglalap szélességét és magasságát adja.
+
+Az alábbi lekérdezés eredménye egy olyan halmaz, amelyben olyan \texttt{Mine} típusú objektumok vannak, amelyek tartalmazzák a $(10, 10)$ pontot. Az eredményt rendezi a \texttt{mine.id}, vagyis az objektum azonosítója szerint, és az első 5 találatot adja vissza.
 \begin{sql}
-Select mine From azeroth Where mine HAS x;
+SELECT mine
+FROM azeroth
+WHERE mine COLLIDE Point(10, 10) AND mine IS Mine
+ORDER BY mine.id
+LIMIT 5;
 \end{sql}
-Ez visszaadja az összes Mine típusú elemet, aminek van x attribútuma.
-
-
-Az alábbi lekérdezés eredménye egy olyan halmaz, amelyben olyan Mine típusú objektumok vannak(maximum 5 darab), amelyek tartalmazzák a 10,10 pontot, majd rendezi mine.id szerint és azután választ ki 5 darabot legfeljebb.
+Ez szögletes zárójeles jelöléssel megfogalmazható az alábbi formában is:
 \begin{sql}
 SELECT mine
 FROM azeroth
@@ -640,116 +699,82 @@ WHERE mine COLLIDE [10, 10] AND mine IS Mine
 ORDER BY mine.id
 LIMIT 5;
 \end{sql}
+Mivel az adatbázisban üzleti logikát is tárolhatunk, azon objektumok pedig nem feltétlenül kell, hogy rendelkezzenek \texttt{x}, \texttt{y}, \texttt{width}, \texttt{height} attribútumokkal, ezért a lekérdezés kihagyja azokat az objektumokat az eredményből, amelyek nem rendelkeznek ezekkel.
 
-
-Az alábbi lekérdezés kiválasztja azokat az elemeket a térképről, amelyek tartalmazzák a (10,10) pontot, és a (20,20) ponttól 30 ponttól nagyobb távolságra vannak.
-\begin{sql}
-SELECT mine
-FROM azeroth
-WHERE mine COLLIDE [10, 10] AND mine.distanceFrom(20, 20) > 30;
-\end{sql}
-
-Kifejezések helyén állhat select, és a selecten belül is használhatunk alSelecteket.
-\begin{sql}
-SELECT mine
-FROM azeroth
-WHERE mine COLLIDE[SELECT number FROM azertoth WHERE number.id='21', SELECT number FROM azeroth WHERE number.id='34']
- AND mine.distanceFrom(Point(SELECT number FROM azeroth WHERE number.id='34', SELECT number FROM azeroth WHERE number.id='34')) > SELECT number FROM (SELECT number FROM outland) WHERE number.id='34';
-\end{sql}
-
-
-Az alábbi lekérdezésben rendezzük az elemeket x szerint(itt csak azokat veszi bele, aminek van x attribútuma, majd a rendezett elemből visszaadja az utolsót, ami itt növekvő sorrend miatt a legnagyobb elem lesz.)
-\begin{sql}
-SELECT mine FROM azeroth ORDER BY mine.x LIMIT 1;
-(SELECT mine FROM azeroth ORDER BY mine.x ASC LIMIT 1;)
-\end{sql}
-
-ORDER BY esetén az ASC az alapértelmezett beállítás, tehát ha azt nem írjuk ki, akkor is úgy fog lefutni a lekérdezés.
-
-\begin{sql}
-SELECT mine FROM azeroth ORDER BY mine.x DESC LIMIT 1;
-\end{sql}
-
-
-ORDER BY használata: Ha x attribútum szerint szeretnénk rendezni az eredményhalmazt, de az eredményhalmazban vannak olyan elemek, melyeknek nincs x attribútuma nincs semmi baj, a lista elejére rakja a rendezett x attribútummal rendelkező elemeket, majd a végére a maradék x attribútummal nem rendelkező elemeket. Ez a rugalmasság miatt lett így implementálva.
-
-
-\section{Lekérdezések}
-
-\subsection{Ütközésvizsgálat}
-
-Lekérdezésekbe sok funkciót implementáltam. Az egyik fontos megoldandó feladat a játékoknál, hogy entitások ütközését detektáljuk. 
-Le szeretnénk kérdezni az adatbázisból azokat az elemeket, melyek ütköznek a megadott alakzattal. Ha egyenest adok meg, akkor azon tileokat adja vissza a lekérdezés, melyeken átmegy az egyenes, ha négyzetet, akkor azokat melyekkel van közös területe.
-
+Téglalap alakú terület esetén a következőhöz hasonló lekérdezést adhatunk ki:
 \begin{sql}
 SELECT mine
 FROM azeroth
 WHERE mine COLLIDE [20, 30, 40, 50];
 \end{sql}
-
-Ilyenkor a lekérdezés eredménye azon objektumok halmaza, amelyek ütköznek a 20,30 koordinátán lévő 40 pixel széles és 50 pixel magas négyszöggel.
-
-\begin{sql}
-SELECT mine
-FROM azeroth
-WHERE mine COLLIDE Point(20, 30);
-\end{sql}
-
-Az összes objektumot visszaadja, ami tartalmazza a 20,30 pontot. 
-Mivel az adatbázisban üzleti logikát is tárolhatunk, azon objektumok pedig nem feltétlenül kell, hogy rendelkezzenek x, y, width, height attribútumokkal, ezért amikor a lekérdezés lefut tud szelektálni, hogy amely objektumok nem rendelkeznek a fenti attribútumokkal, azok az eredmény listába bele sem kerülhetnek.
-
-
-\subsection{Útvonal tervezés}
-
-(Ez a rész nem biztos, hogy belekerül, nem lesz idő implementálni). Itt a felhasználó azt szeretné, hogy megad egy pályaelemet (lehet entitás vagy statikus nem mozgó elem), és egy pontot, amit el szeretne érni, és visszaad egy útvonalat amin haladhat ütközés nélkül(legrövidebb utat). Az útvonalat szakaszokból adhatja meg, és ezt időpillanatokra nézi, tehát vissza tud adni egy pozíciót, hogy most éppen hol kellene lenni (egy pozíció az egy egy elemű map).
-
-Útvonal tervezésnél szükség lehet lineáris interpolációra. Azaz megad 2 pontot, hogy egyikből el akar jutni a másikba adott t időn belül. És a t függvényében visszaadjuk, hogy épp hol kell járnia azon az úton.
-
-\begin{sql}
-SELECT mine.closestPath(Point(10,10)) FROM azeroth WHERE mine.id = "asd11"
-\end{sql}
-Visszaadja Pathok halmazát, melyek azon bányákhoz tartotnak melyek id-je asd11(jobb esetben ebből egy van). Hogy a Path hány Nodeból áll az még kérdéses.
-A closestPath nem szerepelhet WHERE kifejezés után!
-
-
-\subsection{Kitöltés}
-
-Ennek a funkciónak az a lényege, hogy a felhasználó meg tudjon adni egy befoglaló téglalapot, amire megadja, hogy az egy kitöltött terület valamilyen ismétlődő képpel, és azt egyként kell kezelni, és hozzáadja az adatbázis adataihoz. Ennek előnye, ha egy nagy pályát kiakarok tölteni teljesen fűvel(50x50), akkor ne kelljen kézzel berajzolgatni, hanem "fill the map with picture" funkció megoldja ezt helyettünk.
-
-\subsection{Térkép mentés és visszaállítás}
-
-A felhasználó szeretne térkép állapotokat menteni, majd esetleg visszaállítani a jelenlegi állapotokat egy későbbi állapotra. Naplózó művelet.
-
-Save databasename mentésname;
-Ezzel eltárolom ezt az állapotot.
-
-Load mentésnév;
-Ezt kiadva az aktuális állapot ez lesz. Javaból a kapcsolódáskor alapértelmezetten az utolsó mentett állapotot kérdezi le, viszont lehet állítani, hogy mely mentést szeretné folytatni.
-
-\subsection{Entitások állapotának tárolása}
-
-Szeretnénk egy olyan funkciót, hogy az egyes elemekről több információt is lehessen tárolni az adatbázisban, ez azért lenne fontos, mert így az üzleti logikát is lehetne tárolni benne. Ennek megoldása, hogy saját Classokat definiálhat a felhasználó, és a térkép adatok mellé üzleti logikát is tárolhat. A Classok saját típusdefiníciók, sémaleírók. Ez hasonló képpen működik mint Sql-ben a tábla definíció, csak itt nem táblák vannak, hanem objektumok.
-
-\subsection{Rétegkezelés}
-
-Különböző rétegeket tud kezelni az adatbázis. Ez azt jelenti, hogy például ütközés vizsgálatnál a különböző szinteken lévő elemekre nem vizsgálja meg, hogy ütköznének-e. Két alapértelmezett attribútumot bevezetése volt szükségszerű a feladat megoldásához:
--zindex
--zlayer
-
-Ha két elem más szinten van, akkor a zlayer attribútumuk értéke eltérő. Különböző zlayereken lévő attribútumok között az ütközés vizsgálat nincs értelmezve. Ha azt szeretnénk, hogy minden adatbázisban tárolt objektum ütközhessen a többivel, akkor mindegyiknek a zlayer attribútumának az értéke meg kell, hogy egyezzen.
-A kirajzolási sorrend fontos lehet a renderelésnél, a z-index pedig azt határozná meg, hogy melyiket mikor kell kirajzolni, mely elemek előtt vagy éppen után. A zindex attribútum olyan mint az id attribútum, minden Classnak van, és az adatbázismotor generálja vagy tölti fel értékkel. A felhasználó lekérdezheti, és módosíthatja ezen attribútumokat, viszont nem feltétlenül érdemes. A zindex értéket úgy tölti fel , hogy beszúrás alapján növeli a jelenlegi zindex állapotváltozó értéket, majd azt adja hozzá. A Tile Editorban autómatikusan kitölti ennek az értékét.
-
-A következő 4 attribútuma biztosan minden objektumnak van:
-- id
-- className
-- zlayer
-- zindex
+Ilyenkor a lekérdezés eredménye azon objektumok halmaza, amelyek ütköznek a $(20, 30)$ koordinátán lévő 40 egység széles és 50 egység magas négyszöggel.
 
 \subsection{Távolság kiszámítása}
 
-Szükség volt olyan lekérdezésre, aminek az eredménye az, hogy az 500 egységnél távolabb lévő elemeket listázza ki. A távolság számításnak több implementációja lenne(középpontok távolságát nézi, legközelebbi pontok távolságát, jobb felső sarok távolságát, stb..). Jelenlegi implementációban az ütközésvizsgálathoz az entitások bal felső sarkának koordinátáit használja.
+A távolság számításánál elvi problémát jelent, hogy a nem pontszerű alakzatok között a távolságot hogyan definiáljuk. Erre kézenfekvő módon
+\begin{itemize}
+\item az objektum befoglaló téglalapjának bal felső pontja
+\item az objektum középpontja (valamilyen további definíciónak megfelelően), vagy
+\item az objektumok legközelebbi pontjai
+\end{itemize}
+adhatják a távolságszámítás alapját. A jelenlegi implementációban ez a pont az első esetben szereplő pont.
+
+Egy objektumtól egy másik objektum távolságát a \texttt{distanceFrom} metódussal tudjuk lekérdezni. Ez egy \texttt{Number} típussal tér vissza.
+
+Az alábbi lekérdezés kiválasztja azokat az elemeket a térképről, amelyek tartalmazzák a $(10, 10)$ pontot, és a $(20, 20)$ ponttól 30 egységnél nagyobb távolságra vannak.
 \begin{sql}
 SELECT mine
 FROM azeroth
 WHERE mine COLLIDE [10, 10] AND mine.distanceFrom(20, 20) > 30;
 \end{sql}
+
+\subsection{Alszelektek használata}
+
+Kifejezésekbe tudunk tenni további szelekciós lekérdezéseket, mivel egy kifejezés helyén szerepelhet egy szelekció is. Például nézzük meg az alábbi lekérdezést.
+\begin{sql}
+SELECT mine FROM azeroth
+WHERE mine COLLIDE [
+    { SELECT number FROM azeroth WHERE number.id = 21 },
+    { SELECT number FROM azeroth WHERE number.id = 34 }
+] AND
+mine.distanceFrom(Point(
+    { SELECT number FROM azeroth WHERE number.id = 34 },
+    { SELECT number FROM azeroth WHERE number.id = 34 }))
+    >
+    { SELECT number FROM { SELECT number FROM outland }
+      WHERE number.id = 34
+    };
+\end{sql}
+
+\subsection{Rendezések és limitek}
+
+A lekérdezés eredménye alapvetően egy halmaz, amelyen így nincs értelmezve rendezés. Az SQL-hez hasonlóan az \texttt{ORDER BY} kulcsszavakkal meg tudjuk adni, hogy melyik attribútum szerint és milyen módon szeretnénk az eredményeket rendezni.
+
+A rendezés irányának megadásához az \texttt{ASC} (\textit{ascending}, mint növekvő) és a \texttt{DESC} (\textit{descending}, mint csökkenő) kulcsszavakat használhatjuk. Amennyiben nem adunk meg kulcsszót, úgy alapértelmezés szerint a lekérdezés növekvő sorrendbe rendez.
+
+Az eredményhalmazból gyakran nincs szükségünk az összes elemre. Ekkor a \texttt{LIMIT} használatával limitálni tudjuk az eredmény halmaz elemeinek a számát.
+
+Az alábbi lekérdezésben rendezzük az elemeket \texttt{x} attribútum szerint. Itt csak azokat vesszük figyelembe, amelyeknek van \texttt{x} attribútuma. A rendezett halmazból nekünk csak az utolsó elemre van most szükségünk, amely így a rendezés miatt az első esetben a legkisebb, a második esetben a legnagyobb érték lesz.
+\begin{sql}
+SELECT mine FROM azeroth ORDER BY mine.x LIMIT 1;
+SELECT mine FROM azeroth ORDER BY mine.x DESC LIMIT 1;
+\end{sql}
+
+Az \texttt{ORDER BY} esetében, ha az adott elemnek nincs a rendezéshez kijelölt attribútuma, akkor azokat az elemeket az eredménylista végére rakja, hibát nem jelez.
+
+\subsection{Útvonal tervezés}
+
+Az útvonaltervezés a nyelv részét képezi, viszont az aktuális implementációban még nem szerepel.
+
+Útvonalat tervezni akkor szükséges, ha egy kiterjedéssel és áthatolhatatlansággal (\textit{solid} jellemzővel) rendelkező entitást egyik pontból el szeretnénk juttatni egy másikra. A nyelv lehetőséget ad olyan lekérdezés kiadására, amely az útvonalat egymáshoz láncolt pontok listájaként adja vissza.
+
+A nyelvben egy útvonalra vonatkozó lekérdezés például a következőképpen nézhet ki.
+\begin{sql}
+SELECT mine.closestPath(Point(10, 10))
+FROM azeroth WHERE mine.id = 11;
+\end{sql}
+Ez visszad egy \texttt{Path} objektumot, mint útvonalpontok linkelt halmazát.
+
+\subsection{Kitöltés}
+
+A térkép nagyobb területeinek kényelmes beállítási lehetőséget ad, ha azt ki tudjuk tölteni valamilyen adott attribútum tulajdonsággal. Például, ha a felhasználó szeretne egy egész térképet egy ismétlődő entitással (háttérképpel) kitölteni, akkor elegendő neki a területet megadni, és az ismétlődő entitás egy példányát.
