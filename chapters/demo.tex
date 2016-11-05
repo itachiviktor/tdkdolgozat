@@ -1,2 +1,24 @@
 \Chapter{Minta alkalmazás}
 
+public static void main(String[] args) {
+		InMemoryDatabase database = new InMemoryDatabase("Game");
+		List<Instance> map = database.executeQuery("SELECT entity FROM og WHERE entity COLLIDE [1000,10]");
+		
+		for(int i=0;i<map.size();i++){
+			if(map.get(i).className.equals("Entity")){
+				System.out.println(map.get(i).getAttribute("x").getValue());
+			}
+		}
+		database.executeQuery("ALTER CLASS Entity RENAMEATTRIBUTE x TO newx ");
+		database.executeQuery("DELETE obj FROM og WHERE obj IS Entity");
+		
+		database.persist();
+		
+	}
+	
+A minta alkalmazáson látható, hogy kis mennyiségű kóddal kezelhető az adatbázis. Az InMemorydatabase osztály példányosításával megnyitja az adatbázismotor az aktuálisan kezelendő adatbázishoz tartozó JSON fájlt. Innentől kezdve nincs más dolgunk, mint az adatbázis objektum executeQuery metódusát meghívni, paraméterként a lekérdezés szövegláncot átadni neki. A lekérdezések visszatérhetnek eredmény listával, amely lista az Instance objektumra van tipizálva a Java driver implementációban. Ezen a listán végigiterálva az összes eredmény objektumot elérhetjük, annak getAttribute metódusával pedig lekérdezhetőek az attribútumaik.
+
+Ha az adatbázismotor által nyújtott szolgáltatásokat magunknak szeretnénk implementálni, akkor az a példaalkalmazás kódjának a több százszorosát fogja eredményezni, nem is beszélve a fejlesztési időben felfedezhető különbségről. 
+Először is gondoskodni kellene az adatok perzisztálásáról, majd   szolgáltatásokat implementálni annak kezelésére. Ezt követően az ütközés vizsgálat, távolság számítás, útvonal tervezés megvalósítása következne, amelyek nem triviális programozási feladatok. Ha mind ezekkel elkészülnénk, akkor még mindig elvégzendő feladat lenne a kliens alkalmazást összekötni az imént felsorolt implementációkkal. Könnyen belátható, hogy az elkészült adatbázismotor olyan eszköz, amely nélkülözhetetlen a játékfejlesztés folyamatában.
+
+
