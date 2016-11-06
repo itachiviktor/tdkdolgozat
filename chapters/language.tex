@@ -69,8 +69,8 @@ INSERT Boolean() INTO azeroth;
 INSERT Boolean(true) INTO azeroth; 
 INSERT Boolean(false) INTO azeroth;
 INSERT Boolean(
-    SELECT bool FROM azeroth
-    WHERE bool IS Boolean AND bool.id = "11"
+    { SELECT bool FROM azeroth
+      WHERE bool IS Boolean AND bool.id = 11 }
 ) INTO azeroth;
 \end{sql}
 
@@ -84,12 +84,12 @@ A \textit{Number} típus valós vagy egész szám 4 byteon való tárolására a
 INSERT Number(1.2) INTO azeroth;
 INSERT Number(12) INTO azeroth;
 INSERT Number(
-    SELECT number FROM azeroth
-    WHERE number IS Number AND number.id = "11"
+    { SELECT number FROM azeroth
+      WHERE number IS Number AND number.id = 11 }
 ) INTO azeroth;
 INSERT Number(
-    SELECT number FROM azeroth
-    WHERE number HAS x AND number.x IS Number AND number.id = "11"
+    { SELECT number FROM azeroth
+      WHERE number HAS x AND number.x IS Number AND number.id = 11 }
 ) INTO azeroth;
 \end{sql}
 
@@ -100,8 +100,8 @@ Szöveges értékek tárolására a \textit{String} típust használhatjuk.
 \begin{sql}
 INSERT String("alma") INTO azeroth;
 INSERT String(
-    SELECT string FROM azeroth
-    WHERE string IS String AND string.id = "11"
+    { SELECT string FROM azeroth
+      WHERE string IS String AND string.id = 11 }
 )
 INTO azeroth;
 \end{sql}
@@ -111,11 +111,12 @@ INTO azeroth;
 A térképen az elemek helyét pontok adják, amelyet \textit{Point} típusú objektumokban tárolhatunk. A pontnak sem kiterjedése, sem iránya nincs. Tulajdonképpen két \textit{Number} típusú értéket fog össze egy egységbe. A pont koordinátáit a geometriában használatos $(x, y)$ párral adhatjuk meg.
 
 \begin{sql}
-INSERT Point(x, y) INTO azeroth VALUES(10, 20);
-INSERT Point(x, y) INTO azeroth VALUES(Number(10), 20);
-INSERT Point(x, y) INTO azeroth VALUES(10, Number(20));
-INSERT Point(x, y) INTO azeroth VALUES(SELECT point FROM azeroth
-    WHERE point IS Point AND point.id = "11");
+INSERT Point(x, y) INTO azeroth VALUES (10, 20);
+INSERT Point(x, y) INTO azeroth VALUES (Number(10), 20);
+INSERT Point(x, y) INTO azeroth VALUES (10, Number(20));
+INSERT Point(x, y) INTO azeroth VALUES (
+{ SELECT point FROM azeroth
+  WHERE point IS Point AND point.id = 11 });
 \end{sql}
 
 Az utolsó beszúrás esetében egy másik \textit{Point} típusú objektumra hivatkozunk.
@@ -123,17 +124,20 @@ Az utolsó beszúrás esetében egy másik \textit{Point} típusú objektumra hi
 \noindent Amennyiben annak az értéke változik valamelyik a kettő közül, akkor ennek is változni fog.
 
 \begin{sql}
-INSERT Point(x, y) INTO azeroth VALUES(SELECT number FROM azeroth
-    WHERE number is Number AND number.id = "11", 10);
+INSERT Point(x, y) INTO azeroth VALUES ({
+  SELECT number FROM azeroth
+  WHERE number is Number AND number.id = 11 }, 10);
 \end{sql}
 
 Ilyenkor a pont \texttt{x} attribútuma egy másik \textit{Number} típusú objektumra mutat, tehát ha az változik, akkor a pont attribútuma is fog.
 
 \begin{sql}
-INSERT Point(x, y) INTO azeroth VALUES(SELECT number FROM azeroth
-    WHERE number is Number AND number.id = "11",
-    SELECT number FROM azeroth
-    WHERE number is Number AND number.id = "12");
+INSERT Point(x, y) INTO azeroth VALUES (
+    { SELECT number FROM azeroth
+    WHERE number is Number AND number.id = 11 },
+    { SELECT number FROM azeroth
+    WHERE number is Number AND number.id = 12 }
+);
 \end{sql}
 
 Ebben mind a két attribútuma más \textit{Number} objektumra mutat.
@@ -143,29 +147,33 @@ Ebben mind a két attribútuma más \textit{Number} objektumra mutat.
 A \textit{Vector} típus itt a geometriai értelemben véve irány tárolását teszi lehetővé. A ponthoz hasonlóan ez is két \textit{Number} értéket fog össze, ennek viszont csak iránya van, helye nincsen.
 
 \begin{sql}
-INSERT Vector(dx, dy) INTO azeroth VALUES(10, 20);
-INSERT Vector(dx, dy) INTO azeroth VALUES(Number(10), Number(20));
-INSERT Vector(dx, dy) INTO azeroth VALUES(Number(10), 20);
-INSERT Vector(dx, dy) INTO azeroth VALUES(10, Number(20));
-INSERT Vector(dx, dy) INTO azeroth VALUES(Vector(10, 20));
-INSERT Vector(dx, dy) INTO azeroth VALUES(SELECT vector FROM
-azeroth WHERE vector IS Vector AND vector.id = "11");
+INSERT Vector(dx, dy) INTO azeroth VALUES (10, 20);
+INSERT Vector(dx, dy) INTO azeroth VALUES (Number(10), Number(20));
+INSERT Vector(dx, dy) INTO azeroth VALUES (Number(10), 20);
+INSERT Vector(dx, dy) INTO azeroth VALUES (10, Number(20));
+INSERT Vector(dx, dy) INTO azeroth VALUES (Vector(10, 20));
+INSERT Vector(dx, dy) INTO azeroth VALUES (
+{ SELECT vector FROM azeroth WHERE vector IS Vector AND vector.id = 11 }
+);
 \end{sql}
 
 Ilyenkor egy másik \textit{Vector} objektumra hivatkozik, tehát ha annak az értéke változik valamelyik a kettő közül, akkor ennek is fog.
 
 \begin{sql}
-INSERT Vector(dx, dy) INTO azeroth VALUES(SELECT number FROM
-azeroth WHERE number is Number AND number.id = "11", 10);
+INSERT Vector(dx, dy) INTO azeroth VALUES (
+{ SELECT number FROM azeroth
+  WHERE number is Number AND number.id = 11 }, 10);
 \end{sql}
 
 Ilyenkor a vector \texttt{dx} attribútuma egy másik \textit{Number} objektumra mutat, tehát ha az változik, akkor ez is fog.
 
 \begin{sql}
-INSERT Vector(dx, dy) INTO azeroth VALUES(SELECT number
-FROM azeroth WHERE number is Number AND number.id = "11",
-    SELECT number FROM azeroth
-    WHERE number is Number AND number.id = "12");
+INSERT Vector(dx, dy) INTO azeroth VALUES (
+    { SELECT number FROM azeroth
+      WHERE number is Number AND number.id = 11 },
+    { SELECT number FROM azeroth
+      WHERE number is Number AND number.id = 12 }
+);
 \end{sql}
 
 A ponthoz hasonlóan itt is megadható függetlenül a két \textit{Number} érték.
@@ -177,9 +185,9 @@ A \textit{Rectangle} típus téglalap adatainak tárolására szolgál. Tartalma
 
 \begin{sql}
 INSERT Rectangle(location(x, y), size(width, height)) INTO azeroth 
-VALUES((10, 10), (100, 200)); 
-INSERT Rectangle(x, y, width, height) INTO
-azeroth VALUES(10, 20, 30, 40);
+VALUES ((10, 10), (100, 200)); 
+INSERT Rectangle(x, y, width, height) INTO azeroth
+VALUES (10, 20, 30, 40);
 \end{sql}
 
 Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.
@@ -190,7 +198,7 @@ Az \textit{Oval} típus ovális alakzatok tárolását teszi lehetővé.
 
 \begin{sql}
 INSERT Oval(x, y, width, height) INTO azeroth 
-VALUES(10, 300, 12, 32);
+VALUES (10, 300, 12, 32);
 \end{sql}
 
 A fenti lekérdezés eredménye, hogy egy olyan oválist illeszt az "azeroth" nevű térképre, aminek a bal felső befoglaló téglalapjának a sarka a $(10, 300)$ pontra esik, a szélessége 12, a magassága 32. 
@@ -201,14 +209,14 @@ A pozíciók leírásához használhatjuk a \textit{Position} osztályt. Ennek v
 
 \begin{sql}
 INSERT Position(location(x, y), direction(dx, dy)) INTO
-azeroth VALUES((10, 10), (100, 100));
-INSERT Position(x, y, dx, dy) INTO azeroth VALUES(10, 10, 100, 100);
+azeroth VALUES ((10, 10), (100, 100));
+INSERT Position(x, y, dx, dy) INTO azeroth VALUES (10, 10, 100, 100);
 \end{sql}
 
 A pozíciókat közvetlenül az attribútumok értékeivel, vagy pedig részlegesen a részobjektumaival is példányosíthatjuk.
 
 \begin{sql}
-INSERT Position(x, y, dx, dy) INTO azeroth VALUES(10, 10, 100, 200);
+INSERT Position(x, y, dx, dy) INTO azeroth VALUES (10, 10, 100, 200);
 \end{sql}
 
 Ebben az esetben a sorrend \texttt{x}, \texttt{y}, \texttt{dx} és \texttt{dy}. 
@@ -220,7 +228,7 @@ A nyelv a dinamikus adatszerkezetek leírását láncolással oldja meg. Az alka
 
 \begin{sql}
 INSERT Node(x, y, dx, dy, next, isFirst) INTO 
-azeroth VALUES(10, 10, 100, 100, NULL, false);
+azeroth VALUES (10, 10, 100, 100, NULL, false);
 \end{sql}
 
 A csomópontnak ekkor a pozícióra jellemző attribútumait egészítjük ki egy referenciával. A \texttt{NULL} ez esetben a sehova sem mutató, érvénytelen referenciát jelenti.
@@ -228,21 +236,21 @@ A csomópontnak ekkor a pozícióra jellemző attribútumait egészítjük ki eg
 
 \begin{sql}
 INSERT Node(x, y, dx, dy, next, isFirst) INTO 
-azeroth VALUES(10, 10, 100, 100, NULL, true);
+azeroth VALUES (10, 10, 100, 100, NULL, true);
 \end{sql}
 
 Ha az 5. paraméternek egy \texttt{true} értéket adunk meg, akkor az azt jelenti, hogy ez egy Lánc első eleme, innen indul ki az összes többi. (Amennyiben az utolsó elem erre mutat, akkor kapunk egy körutat.)
 
 \begin{sql}
 INSERT Node(x, y, dx, dy, next, isFirst) INTO 
-azeroth VALUES(10, 10, 100, 100, NULL, false);
+azeroth VALUES (10, 10, 100, 100, NULL, false);
 \end{sql}
 
 Így is létrehozható egy csomópont. Ez az alapértelmezett eset, tehát ha nem tüntetjük fel, hogy az utolsó paraméter értéke \texttt{false}, akkor alapértelmezés szerint ugyanezt kapjuk.
 
 
 \begin{sql}
-INSERT Node(x, y, dx, dy) INTO azeroth VALUES(10, 10, 100, 100);
+INSERT Node(x, y, dx, dy) INTO azeroth VALUES (10, 10, 100, 100);
 \end{sql}
 Ha elhagyjuk azt a paramétert, ami a következő csomópontra mutatna, akkor azzal sincs semmi gond, mert az automatikusan beilleszti oda a NULL értéket.
 
@@ -252,9 +260,9 @@ A \textit{Path}, útvonal típus csomópontok halmazát tárolja.
 
 \begin{sql}
 INSERT Path(
-    Node(10,10,10,10),
-    Node(10,20),
-    Node(10,10,100,35)
+    Node(10, 10, 10, 10),
+    Node(10, 20),
+    Node(10, 10, 100, 35)
 ) INTO azeroth;
 \end{sql}
 
@@ -269,7 +277,7 @@ A \textit{Node} adattípus leírásánál elmondtuk, hogy a \texttt{Node(10, 10,
 \begin{sql}
 INSERT Path(
     SELECT node FROM azeroth
-    WHERE node IS Node AND node.id = "1"
+    WHERE node IS Node AND node.id = 1
 ) INTO azeroth;
 \end{sql}
 
@@ -289,7 +297,7 @@ A fenti operátorok logikai operátorok, tehát \texttt{Boolean} típusú érté
 Lássunk mindegyikre egy példát!
 
 \begin{sql}
-SELECT mine FROM azeroth WHERE mine.id = "11";
+SELECT mine FROM azeroth WHERE mine.id = 11;
 SELECT mine FROM azeroth WHERE mine.x <= 10;
 SELECT mine FROM azeroth WHERE mine.y >= 10;
 SELECT mine FROM azeroth WHERE mine.x <> 20;
@@ -327,12 +335,12 @@ SELECT mine FROM azeroth
 WHERE mine.x = 10 AND (mine.y = 20 OR mine.id = 100);
 \end{sql}
 
+A következő lekérdezés azokat az objektumokat gyűjti ki, amelyek \texttt{x} attribútuma 10, és \texttt{y} attribútuma nem egyenlő 20, és az azonosítójuk nem egyenlő 100-al.
+
 \begin{sql}
 SELECT mine FROM azeroth
 WHERE mine.x = 10 AND NOT (mine.y = 20 OR mine.id = 100 OR 10 = 10);
 \end{sql}
-
-A fenti lekérdezés azokat az objektumokat gyűjti ki, amelyek \texttt{x} attribútuma 10, és \texttt{y} attribútuma nem egyenlő 20, és az azonosítójuk nem egyenlő 100-al.
 
 Az alábbi lekérdezés azokat az objektumokat választja ki, amelyek nem tartalmazzák a $(10, 10)$ pontot.
 \begin{sql}
@@ -388,7 +396,7 @@ CREATE CLASS Mine(
 );
 
 CREATE CLASS Mine(
-	Number kor DEAFAULT 18
+    Number kor DEAFAULT 18
 );
 \end{sql}
 
@@ -448,23 +456,23 @@ ALTER CLASS Mine RENAMECLASS BigMine;
 Új objektum felvinni egy térképre \texttt{INSERT} lekérdezéssel lehet, például
 \begin{sql}
 INSERT Szobor(location, name) INTO azeroth
-VALUES((10, 10), "Jani") LAYER 1;
+VALUES ((10, 10), "Jani") LAYER 1;
 \end{sql}
 A \texttt{LAYER 1} azt jelenti, hogy a beszúrandó elemek az 1-es rétegre kerüljenek, tehát a \texttt{zlayer} attribútumát 1-re kell állítani, a \texttt{zindexet} pedig az 1-es rétegben lévő következő indexre. Mivel rétegből tetszőleges sok lehet, ezért a kiosztandó indexek rétegenként egyediek.
 
 Az alábbi lekérdezés már az összetettebbek közé tartozik. Szükséges megadni az osztálynév után a attribútumok felépítését. Ezzel mondjuk meg, hogy mely atribútumok kapnak értéket a \texttt{VALUES} kulcsszó után felsorolt értékhalmazból.
 \begin{sql}
 INSERT Mine(x, stone(location(x, y), w, h), age) INTO azeroth
-VALUES(10, ((10, 20), 30, 40), 22);
+VALUES (10, ((10, 20), 30, 40), 22);
 \end{sql}
 
 Az alábbi lekérdezésnél látható, hogy itt ennek a szobornak egy \texttt{stone} attribútumba egy lekérdezés eredményét adom, amely egy létező objektum, tehát arra fog mutatni az azonosító alapján.
 
 Ha ennek a \texttt{SELECT} lekérdezésnek több értékű halmaz eredménye lesz, akkor hiba keletkezik, mivel létrehozásnál egy elemet várunk. Ha üres halmazt kapunk, akkor sem történik meg a beszúrás.
 \begin{sql}
-INSERT Szobor(x, y, stone(x, y)) INTO azeroth VALUES(
+INSERT Szobor(x, y, stone(x, y)) INTO azeroth VALUES (
     10, 10,
-    SELECT stone FROM azeroth WHERE stone IS Stone AND stone.id = 11
+    { SELECT stone FROM azeroth WHERE stone IS Stone AND stone.id = 11 }
 );
 \end{sql}
 
@@ -491,7 +499,7 @@ UPDATE azeroth MOVE mine TO (10, 10) WHERE mine.id = 11;
 
 Az adatbázis objektumait az osztálydefiníciók alapján történő példányosítás során kapjuk, amelyek az \texttt{INSERT} utasítások hatására jönnek létre. Ezeket törölni a \texttt{DELETE} lekérdezésekkel lehet. Például az összes \texttt{Mine} típusú elemet az \texttt{azeroth} térképről a
 \begin{sql}
-DELETE mine FROM azeroth WHERE  mine IS Mine;
+DELETE mine FROM azeroth WHERE mine IS Mine;
 \end{sql}
 lekérdezéssel lehet.
 
