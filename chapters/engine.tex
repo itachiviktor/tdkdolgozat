@@ -2,9 +2,15 @@
 
 \section{Java implementáció}
 
-Azért a Java programozási nyelvre esett a választás, mert platformfüggetlen megoldást biztosít, illetve ezt a nyelvet már több éve tanulom, ebben van a legmagabiztosabb tudásom.
+A \textit{Java} nyelvnek számos olyan előnye van, ami miatt jó választásnak bizonyult egy adatbázismotor elkészítéséhez. Ilyen például, hogy
+\begin{itemize}
+\item a nyelv platformfüggetlen. A program átvihetőségével kapcsolatos problémák így gyakorlatilag megoldottnak tekinthetők.
+\item Gazdag eszközkészletet biztosít.
+\item A virtuális gép implementációja kellőképpen hatékony ahhoz, hogy a lekérdezéseket időben végre lehessen hajtani.
+\item Korábban már voltak jó tapasztalataim a Java nyelvvel és környezetével kapcsolatban.
+\end{itemize}
 
-A térkép adatainak tényleges tárolásához több lehetőség is adott volt.
+Az elsődlegesen megoldandó problémát a térképadatok tárolása jelentette. Az adatok tényleges tárolásához több lehetőség is adott volt.
 \begin{itemize}
 \item Kidolgozható egy olyan, saját fájlformátum, amely kifejezetten térképadatok hatékony tárolására van specializálva.
 \item A térképadatok kezelésének egy lehetséges módja, hogy azokat egy, már létező adatbázis modelljére képezzük le. Ezzel az adott adatbázismotort, mint kész komponenst lehet alkalmazni.
@@ -27,12 +33,13 @@ Az XML és JSON nyelvek egyaránt alkalmasak a térkép, és a rajta lévő enti
 	\end{center}
 \end{figure}
 
-Az adatbázis motor és a Driver között a kommunikáció (\textit{az adatok tárolási módjához hasonlóan szintén}) JSON alapú. Ez lehetővé teszi, hogy a Driver és az adatbázismotor más nyelven legyen implementálva. Számítógépes játékokat implementálhatnak például C, C++, C\#, Java nyelveken, és ahhoz, hogy mindegyikkel kompatibilis legyen az adatbázismotor, ahhoz rosszabb esetben arra lenne szükség, hogy a motort minden nyelven implementáljuk. Ez nagyon fejlesztést tenne szükségessé, ehelyett csak egy drivert kell implementálni ezen nyelvekhez, amely kommunikál az adatbázis motorral. A projektre nézve a későbbiekben nem csak Java nyelven írt drivert szeretnénk, hanem C++ és C\# is a tervek között van.
+Az adatbázismotor közvetlenül nem tud kommunikálni a kliens programmal. Ehhez szükség van egy közbülső, aktív szoftveres kapcsolóelemre, amelyet meghajtóprogramnak, vagy angol terminológia szerint \textit{driver}-nek szoktak nevezni.
+
+Az adatbázis motor és a driver között a kommunikáció (\textit{az adatok tárolási módjához hasonlóan}) JSON alapú. Ez lehetővé teszi, hogy a driver és az adatbázismotor más nyelven legyen implementálva. Számítógépes játékokat implementálhatnak például C, C++, C\#, Java nyelveken, és ahhoz, hogy mindegyikkel kompatibilis legyen az adatbázismotor, ahhoz rosszabb esetben arra lenne szükség, hogy a motort minden nyelven implementáljuk. Ez komoly fejlesztőmunkát igényelne, e helyett csak egy drivert kell implementálni ezen nyelvekhez, amely kommunikál az adatbázis motorral. A projektre nézve a későbbiekben nem csak Java nyelven írt drivert szeretnénk, hanem C++ és C\# is a tervek között van.
 
 \subsection{Lekérdezések kiértékelése}
-A \ref{fig:database}. ábrán szemléltetjük a lekérdezés feldolgozásának és kiértékelésének folyamatát. A kliens a driveren keresztül kiad egy executeQuery(String query) hívást, amelyben a lekérdezés az egy karakterlánc, és ez adódik át a Parser komponensnek. Az adatbázismotor Parser komponense a lekérdezésobjektumokat a builder osztályok metódusaival építi fel. Ezt követően az előállított lekérdezés objektumnak meghívódik az execute metódusa, és ennek eredménye SELECT esetén egy lista ami objektumokat tartalmaz. Ezt a listát a motor átadja a JSON Serializer komponensnek, ami előállítja ebből a listából a JSON-t, amit továbbít a Drivernek, aminek a JSON Deserializer komponense foglya feldolgozni, és előállít belőle egy eredmény listát. A Driver a kliens program számára már értelmezhető formában adja vissza az eredmény listát. Ez a körfolyamat játszódik le minden lekérdezés esetén.
 
-
+A \ref{fig:database}. ábrán szemléltetjük a lekérdezés feldolgozásának és kiértékelésének folyamatát. A kliens a driveren keresztül kiad egy \texttt{executeQuery(String query)} hívást, amelyben a lekérdezés az egy karakterlánc. Ez adódik át a \textit{Parser} nevű, nyelvi értelmező komponensnek. Az adatbázismotor \textit{Parser} komponense a lekérdezésobjektumokat a \texttt{Builder} osztályok metódusaival építi fel. Ezt követően az előállított lekérdezés objektumnak meghívódik az \texttt{execute} metódusa, és ennek eredménye \texttt{SELECT} esetén egy lista amely objektumokat tartalmaz. Ezt a listát a motor átadja a \textit{JSON Serializer} komponensnek, ami előállítja ebből a listából a JSON-t, amit továbbít a drivernek, aminek a \textit{JSON Deserializer} komponense foglya feldolgozni, és előállít belőle egy eredmény listát. A driver a kliens program számára már értelmezhető formában adja vissza az eredmény listát. Ez a körfolyamat játszódik le minden lekérdezés esetén.
 
 \subsection{Az ütközésvizsgálat megvalósítása}
 
@@ -44,20 +51,16 @@ A \ref{fig:database}. ábrán szemléltetjük a lekérdezés feldolgozásának �
 \end{center}
 \end{figure}
 
-Az ütközés vizsgálatnak van egy másik fajtája is, amikor mozogni szeretnék egy entitással, és azt szeretnénk megvizsgálni, hogy egyik pontból a másikba mozogva ütközik-e valamely adatbázisban tárolt elemmel.
+A lekérdezések közül gyakorlati szempontból az egyik legfontosabb az ütközésvizsgálat.
 
-Itt a csúszós hatás is garantálja az eljárás, a felhasználónak csak annyit kell kiadnia, hogy hova szeretné léptetni az entitást, a többit az adatbázismotor megoldja, az új pozíció vagy az lesz amit a felhasználó lekérdezés formájában megadott, vagy ha ütközött, akkor egy új pozíciót számol neki az adatbázis.
+Az ütközés vizsgálat során általában elegendő azt vizsgálni, hogy két alakzat valamilyen mértékben fedésben van-e egymással. Az ütközés vizsgálatnak itt viszont van egy másik fajtája is, amikor mozogni szeretnék egy entitással, és azt szeretnénk megvizsgálni, hogy egyik pontból a másikba mozogva ütközik-e valamely adatbázisban tárolt elemmel.
 
-Az UPDATE lekérdezés mindig visszaadja a módosított objektumokkal feltöltött mapet, tehát nem csak egy számot ad vissza, mint az Sql a módosított elemek számára vonatkozóan, hanem azokat egy az egyben vissza is adja.
-
-
+Az ütközési problémának sajnos nincs minden esetben megoldása, és ha van, akkor sem feltétlenül egyértelmű. Itt implementálásra került egy olyan kiegészítő módszer, amellyel egy jó közelítést lehet adni, hogy az ütközést követően hova kerülne az objektum. Valós időben vizsgálva az objektumok mozgását ez egyfajta \textit{csúszós hatás}t kelt. Az adatbázis ki tudja úgy számolni az új pozícióját egy objektumnak, hogy a felhasználó csak azt adta meg, hogy melyik pozícióba szeretné mozgatni az elemet.
 
 A \ref{fig:collision}. ábrán látható, hogy milyen elven oldottam meg a problémát. A bal fels\H o sarokban lév\H o zöld téglalap az entitás, amivel mozogni szeretnék. Minden entitást egy bal fels\H o sarok koordinátával és egy szélesség-magasság egész értékekkel lehet meghatározni az ütközésvizsgálat szempontjából. A bal fels\H o sarkából kiinduló egyenes köti össze a bal fels\H o sarkát azzal a ponttal, ahová mozogni szeretne az entitás. A jobb alsó sarokban lév\H o téglalap ez az objektum, amivel ütközést vizsgálok. Látható, hogy a bal fels\H o sarkához hozzátoltam a mozogni szándékozó entitást, és így kaptam egy nagyobb téglalapot.
 Az új téglalap négy határoló egyenesével megvizsgálom, hogy van-e metszéspontja annak az egyenesnek, ami az entitás bal fels\H o sarkából indul. Ha van, akkor ütközne, ha nincs egyik oldali egyenessel sem metszéspont, akkor az azt jelenti, hogy azzal az objektummal nem ütközik az entitás, ha oda lép. Természetesen ezt az eljárást minden pályaelemre meg kell ismételni.
 
-
-
-A \ref{fig:collision2}.ábrán a zöld téglalappal szeretnénk mozogni olyan pontba, ahol ütközne már a nagy piros téglalappal. A sárga téglalap lesz az, ahova lecsúszik majd az ütközést követ\H oen a zöld entitás.
+A \ref{fig:collision2}. ábrán a zöld téglalappal szeretnénk mozogni olyan pontba, ahol ütközne már a nagy piros téglalappal. A sárga téglalap lesz az, ahova lecsúszik majd az ütközést követ\H oen a zöld entitás.
 
 \begin{figure}[htb]
 	\begin{center}
@@ -67,101 +70,135 @@ A \ref{fig:collision2}.ábrán a zöld téglalappal szeretnénk mozogni olyan po
 	\end{center}
 \end{figure}
 
-Két egyenes metszéspontjának implementációja: Az implementáció sokkal egyszer\H ubbnek bizonyult homogén koordináta rendszerben, mint deascertes-ban. Míg descartesben fel kell írni az egyenesek egyenletét, majd implementálni egy olyan szolgáltatás, amely megold egy lineáris egyenletrendszert, addig ez homogén koordinátákkal sokkal egyszer\H ubb m\H uvelet.
-Két pontra illeszked\H o egyenes egyenlete homogén koordináta rendszerben: 
-\\
-e = ( a b c ) =$ \bordermatrix{~ &  &  &  \cr
-	& i & j & k\cr
-	& a_1 & a_2 & 1\cr
-	& b_1 & b_2 & 1\cr} = ( a_2 - b_2 , b_1 - a_1 , a_1b_2 - b_1a_2 )$
-\\
-Két egyenes metszéspontjának meghatározása:\\
-\\
-P = ( p1 p2 p3 ) = \bordermatrix{~ &  &  &  \cr
-	& i & j & k\cr
-	& a & b & c\cr
-	& e & f & g\cr} = ( bg - fc  ec - ag  af - eb )
-\\
-A P pont Descartes koordinátái:
-$ x = \cfrac{bg - fc}{af - eb} , y = \cfrac{ec - ag}{af - eb}$
-\cite{Banya5}
+\subsection{Két egyenes metszéspontjának kiszámítása}
 
+Az implementáció sokkal egyszerűbbnek bizonyult homogén koordináta rendszerben, mint Descartes-ban. Homogén koordináta rendszerben a pont és az egyenes felírási módja megegyezik, így a két pontra felírható egyenes, és két egyenes metszéspontja is ugyanazzal a művelettel számolható \cite{Banya5}.
 
-Az alkalmazás a Collision interfészen keresztül veheti igénybe az ütközés vizsgálat számítást. Ez foglalja magába a homogén koordinátás implementációt.
+A két pontra illeszkedő egyenes egyenlete homogén koordináta rendszerben a következőképpen néz ki.
+$$
+e = (
+\begin{matrix}
+a, & b, & c \\
+\end{matrix}
+) =
+\left(
+\begin{matrix}
+i & j & k \\
+a_1 & a_2 & 1 \\
+b_1 & b_2 & 1 \\
+\end{matrix}
+\right) =
+(
+\begin{matrix}
+a_2 - b_2, & b_1 - a_1, & a_1 b_2 - b_1 a_2
+\end{matrix}
+)
+$$
+Két egyenes metszéspontjának a következőképpen határozhatjuk meg.
+$$
+P = (
+\begin{matrix}
+p_1, & p_2, & p_3 \\
+\end{matrix}
+) =
+\left(
+\begin{matrix}
+i & j & k \\
+a & b & c \\
+e & f & g \\
+\end{matrix}
+\right) =
+(
+\begin{matrix}
+bg - fc, & ec - ag, & af - eb
+\end{matrix}
+)
+$$
+A $P$ pont Descartes koordinátái ez alapján
+$$
+x = \dfrac{bg - fc}{af - eb}, \quad
+y = \dfrac{ec - ag}{af - eb}
+$$
 
+\subsection{Interfész az ütközésvizsgálathoz}
+
+Az alkalmazás a \texttt{Collision} interfészen keresztül veheti igénybe az ütközés vizsgálattal kapcsolatos funkciókat. Ez foglalja magába az előzőekben bemutatott homogén koordinátás számítás implementációt.
+
+Az ütközésvizsgálatra nézzük az alábbi példát!
 \begin{sql}
-UPDATE azeroth MOVE  mine TO Point(10,10) WHERE mine.id = "alma11"; 
+UPDATE azeroth MOVE mine TO Point(10,10) WHERE mine.id = 11; 
 \end{sql}
-A fenti lekérdezéssel azokat ez objektumokat mozgatja el a (10,10) pontba, akinek van id attribútuma, és annak értéke alma11. Ilyenkor ütközést vizsgálva mozgat, tehát egyáltalán nem biztos, hogy a lekérdezés ereménye az lesz, hogy a feltételre megfelelő objektumok a (10,10) pontba kerülnek, mert lehet, hogy ütköznek, és olyankor az adatbázismotor számol nekik pozíciót.
+A fenti lekérdezés azokat az objektumokat mozgatja el a $(10, 10)$ pontba, amelyeknek van \texttt{id} attribútuma, és annak értéke 11. Ebben az esetben ütközést vizsgálva mozgat, tehát egyáltalán nem biztos, hogy a lekérdezés eredménye az lesz, hogy a feltételre megfelelő objektumok a $(10, 10)$ pontba kerülnek, mert előfordulhat, hogy ütköznek, és abban az esetben az adatbázismotor számol nekik új pozíciót.
+
+A mozgatás elvégeztethetjük csak az egyik koordinátára is, például az
 \begin{sql}
-UPDATE azeroth MOVE  mine.x TO 10 WHERE mine.id = "asd11"; 
+UPDATE azeroth MOVE mine.x TO 10 WHERE mine.id = 11;
 \end{sql}
-Ez a lekérdezés annyival másabb a fentinél, hogy itt nem mindkétt koordinátát módosítjuk, hanem vagy csak az x-et vagy csak az y-ont.
+lekérdezés csak az $x$ tengely szerinti mozgatást érinti.
 
 \section{Lekérdezés objektumok}
 
-Az adatbázismotorhoz a beérkező lekérdezés stringként jön át, ezt a tokenizer feldolgozza, és minden csomopontnál meghív egy metódust, ami a lekérdezés objektumot építi fel. A lekérdezés objektum felépítése után meghívódik annak execute metódus, ami végrehajta azt.
+Az adatbázismotorhoz a beérkező lekérdezés szöveges formában kerül át. Ennek a következő lépéseken kell keresztül mennie, hogy az adatbázisban végrehajtásra kerüljön.
+\begin{itemize}
+\item A szöveget a \textit{Tokenizer} komponens tokenekre bontja.
+\item A \textit{Parser} komponens a \texttt{Builder} osztályok használatával lekérdezésobjektumot készít belőle.
+\item A lekérdezés objektumnak meg kell hívni az \texttt{execute} metódusát a lekérdezés végrehajtásához.
+\end{itemize}
+
+Az átalakítás során számos szintaktikai vagy szemantikai hiba előfordulhat. Ezeket a nyelvi feldolgozás és a végrehajtás során is kivételobjektumok dobásával jelzi a hibát detektáló kódrész.
+
+Ez minden lekérdezéstípus esetében így történik. A következőkben az egyes lekérdezéstípusok kerülnek bemutatásra ennek megfelelően. A példákon keresztül láthatjuk majd, hogy hogyan néz ki az említett \texttt{Builder} osztályok interfésze.
 
 \subsection{A SELECT lekérdezés objektum}
 
-A legnehezebb feladat az alábbihoz hasonló lekérdezés objektumként való ábrázolása volt.
-
+Az implementáció szempontjából a \texttt{WHERE} kulcsszó után szereplő kifejezés ábrázolása bizonyult összetettebb feladatnak. Egy ilyen lekérdezés egyszerűbb változata például az alábbi.
 \begin{sql}
 SELECT mine FROM azeroth WHERE mine.x = 10 AND mine.y < 20;
 \end{sql}
 
-A WHERE feltétel megadása és kiértékelése összetett, mivel abban egy tetszőleges számú feltételből álló, zárójelezhető kifejezés kell, hogy szerepeljen.
+A \texttt{WHERE} kulcsszó után szereplő feltételben tetszőleges sok állítás szerepelhet logikai műveletekkel összekapcsolva és különféle módokon zárójelezve. Ennek az ábrázoláshoz a megoldást egy bináris fa jelentette.
 
-Az ábrázoláshoz a megoldást egy bináris fa jelentette. Kiértékeléskor elegendő postorder bejárással végigiterálnunk a fa elemein, ahogy a \ref{fig:postorder}. ábrán látható.
+Amennyiben a feltételeket fa struktúrába sikerül rendezni, akkor kiértékeléskor elegendő \textit{postorder} bejárással végigiterálnunk a fa elemein, ahogy a \ref{fig:postorder}. ábrán látható.
 
 A fa levelein találhatóak az operandusok, a csomópontjaiban pedig a bináris logikai operátorok. Egy csomópont kiértékelésekor így mindig egy logikai kifejezést kapunk.
 
-A SELECT lekérdezés kiértékelése ennek segítségével úgy történik, hogy a feltételt megvizsgáljuk a szóbajöhető objektumokra, és amelyikre igaz a feltétel, az belekerül az eredmény listába.
+A \texttt{SELECT} lekérdezés kiértékelése ennek segítségével úgy történik, hogy a feltételt megvizsgáljuk a szóbajöhető objektumokra, és amelyikre igaz, az belekerül az eredmény listába.
 
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.1]{images/postorder}
-		\caption{WHERE feltétel kiértékelése postorder fa bejárással}
+		\caption{\texttt{WHERE} feltétel kiértékelése \textit{postorder} fabejárással}
 		\label{fig:postorder}
 	\end{center}
 \end{figure}
 
-\subsection{Lekérdezés feldolgozás és lekérdezés kiértékelés}
+\subsection{A \texttt{WHERE} utáni kifejezés ábrázolása}
 
-Minden lekérdezéshez készültek szintaxis diagramok, amelyek segítségével leírtuk a nyelv szerkezetét, illetve a parser erre támaszkodva tud szintaxist ellenőrizni. A diagramok éleihez érve a parser meghív egy metódust, ami a lekérdezés objektum felépítő egyik metódusa. Minden lekérdezés típushoz definiáltunk egy felépítő osztályt, ami interfész a lekérdezésobjektumok felé.
-
-
-\subsection{A WHERE kifejezés ábrázolása}
-
-A WHERE lekérdezést a kiértékeléshez gráfként kell ábrázolni. Például
-
+A \texttt{WHERE} kifejezés a \texttt{SELECT}, \texttt{UPDATE} és \texttt{DELETE} lekérdezésekben is szerepelhet. A \texttt{WHERE}-ben szereplő kifejezést a későbbi kiértékeléshez gráfként kell ábrázolni. Például tekintsük az alábbi kifejezést!
 \begin{sql}
 WHERE ((mine.x < 10 AND mine IS Mine)
   OR (mine.location.x = 10 OR mine.y = 20)) AND mine.id = 10;
 \end{sql}
 
-A fenti lekérdezés részletet kapja meg a tokenizer komponens, akkor karakterenként elkezdi feldolgozni.
+A lekérdezés a nyelvi feldolgozás ezen fázisában már tokenek alapján történik. A lekérdezés objektumot egy \texttt{WhereBuilder} típusú objektum fogja felépíteni. A nyelvtani elemző a szintaxis diagramoknak megfelelően bejárja, és ellenőrzi, hogy helyes kifejezésről van-e szó, illetve a megfelelő éleknél meghívja a \texttt{WhereBuilder} metódusait, átadva neki az aktuális token típusát és nevét. A példán keresztül a következőkben láthatjuk, hogy az átalakítás hogyan megy végbe.
 
-A szintaxis diagrammban feltüntetett élekre definiáltam metódusokat, melyeket a tokenizer meghívhat. 
+A \texttt{WHERE} kulcsszó hatására létrejön egy \texttt{WhereBuilder} objektum.
 
-A WhereBuilder objektum metódusait hívja meg a tokenizer.
+A nyitózárójeleknél mélyíteni kell a fa mélységén. A részkifejezések, bináris fa lévén, az adott csomópont bal, vagy a jobb gyerekelemébe kerülnek. A builder osztálynak ezért tárolnia kell a fa mélységét, és azt, hogy bal- vagy jobb elem megadása következik-e.
 
-A lekérdezés String feldolgozásának menete:
+A \texttt{mine.x} esetén a builder létrehoz egy \texttt{Operand} típusú objektumot. Két \texttt{Operand} objektum, és egy \texttt{AND} vagy \texttt{OR} értéket tároló \texttt{Operator}  objektumból a builder létrehoz egy \texttt{WhereLeaf} objektumot. Ez a fa egyik levele lesz. Az aktuális állapotváltozókat figyelembe véve, a mélységi szintet és azt, hogy jobb vagy bal gyerek lesz ez a levél beállítja a builder. A következő metódus meghívásakor az \texttt{AND} logikai operátor adódik hozzá a fához. A builder neki is beállít egy mélységi és egy gyerek értéket. A \texttt{)} karakter észlelése után a buildernek egy olyan metódusa hívódik meg, amely az aktuális mélységi állapotváltozó értékét csökkenti eggyel.
 
-A WHERE kulcsszónál létrehozza a WhereBuilder objektumot. 
-A "(" karakternél mélyít az aktuális mélységen. A builder adattagként két állapotváltozót tárol, az egyik, hogy aktuálisan a fa mely szintjén járunk, a másik pedig, hogy azon a szinten bal, vagy jobb gyerek beszúrása lesz az aktuális feladat. Mivel bináris fáról van szó, így egy csomópontnak csak két gyereke lehet, vagy egy sem, ilyenkor levélről beszélünk. Azt érdemes látni ezen a fa ábrázoláson, hogy levelek nem csak a legmélyebb szinten lehetnek.
+Az említett példán szeretném bemutatni, hogy a fenti algoritmus miként működik. Ennek a lépésnek az alapja, hogy egy listába kerülnek a létrehozott operátorok és operandusok.
 
-A "mine.x" esetén a builder létrehoz egy Operand objektumot. Két Operand objektum, és egy Operator(AND, OR) objektumból a builder létrehoz egy WhereLeaf objektumot, ez a fa egyik levele lesz. Az aktuális állapotváltozókat figyelembe véve, a mélységi szintet és azt, hogy jobb vagy bal gyerek lesz ez a levél beállítja a builder. Következő metódus meghívásakor az "AND" logikai operátor adódik hozzá a fához. A builder neki is beállít egy mélységi és egy gyerek értéket. A ")" karakter észlelése után a buildernek egy olyan metódusa hívódik meg, amely az aktuális mélységi állapotváltozó értékét csökkenti eggyel.
+\begin{itemize}
+\item A \texttt{WHERE} kulcsszó hatására létrejön egy \texttt{WhereBuilder} objektum. A mélységi állapotváltozó értékét 1-re állítja, az aktuális gyerek értéket pedig \texttt{Left} (bal) értékre.
+\item A \texttt{(} hatására a mélységi változó értéke kettő lesz.
+\item A \texttt{(} hatására a mélységi változó értéke három lesz.
+\item A \texttt{mine.x < 10} feldolgozása közben a builder létrehoz egy \texttt{WhereLeaf} levél objektumot, hozzáadva a listához, a mélységi állapotváltozóját négyre állítva. (Levelek esetén nem az aktuális mélységi értéket, hanem azt eggyel megnövelve kell beállítani). A levél aktuális gyerek értékét \texttt{Left}-re állítja, a builder pedig a saját állapotváltozóját \texttt{Right}-ra ezen a szinten. (Ezt egy \texttt{Map} objektummal valósítom meg, ahol a kulcs az, hogy hanyadik szint a fában, az érték pedig a gyerek oldala.) Tehát a builderben a négyes szinthez \texttt{Right} érték lett beállítva.
+\item Az \texttt{AND} után a builder létrehoz egy \texttt{Operator} objektumot, a mélységi állapot 3, a gyerek \texttt{Left}-re lesz állítva, majd ezt is hozzáadja a listához.
+\end{itemize}
 
-Az említett példán szeretném bemutatni, hogy a fenti algoritmus miként működik. Ennek a lépésnek az alapja, hogy egy listába rakja a létrehozott operátorokat és operandusokat a builder lekérdezésobjektum gyártó.
-
-- "WHERE":Ezen kulcsszó hatására létrejön a WhereBuilder objektum, a mélységi állapotváltozó értékét 1-re állítja, az aktuális gyerek értéket pedig Left(bal) értékre.
-- "(": A mélységi állapotváltozó értékét kettőre növeli.
-- "(": A mélységi állapotváltozó értékét háromra növeli.
-- "mine.x < 10": A builder létrehoz egy WhereLeaf (levelet a fába)objektumot hozzáadva a listához, ennek a mélységi állapotváltozóját négyre állítva (levelek esetén nem az aktuális mélységi értéket, hanem azt eggyel megnövelve kell beállítani). A levél aktuális gyerek értékét Leftre állítja, és a builder a saját állapotváltozóját Rightra állítja ezen a szinten(ezt egy Map objektummal valósítom meg, ahol a kulcs az, hogy hanyadik szint a fában, az érték pedig a gyerek oldala). Tehát a builderben a négyes szinthez Right érték lett beállítva.
-- "AND": A builder létrehoz egy Operator objektumot, mélységi állapot 3, gyerek Leftre állítva, majd hozzáadja a listához.
-
-Ez így folytatódik egészen addig, amíg nem ér a String végére. A feltöltött eredménylista tartalma:
+Ez így folytatódik egészen addig, amíg nem ér végig a tokeneken. A feltöltött eredménylista tartalma a lépések végrehajtása utána következő lesz.
 
 \begin{verbatim}
 Mélység: 4 gyerek oldal:(false-bal, true- jobb)false mine.x < 10
@@ -175,8 +212,7 @@ Mélység: 1 gyerek oldal:(false-bal, true- jobb)false  AND
 Mélység: 2 gyerek oldal:(false-bal, true- jobb)true mine.id = 10 
 \end{verbatim}
 
-Ha ezzel a lépéssel végeztünk, akkor a builder objektum ezt a listát rendezi a mélység és a gyerek oldal attribútumok szerint.
-A rendezés eredménye:
+Ha ezzel a lépéssel végeztünk, akkor a builder objektum ezt a listát rendezi a mélység és a gyerek oldal attribútumok szerint. A rendezés eredménye a következő.
 
 \begin{verbatim}
 Mélység: 1 gyerek oldal:(false-bal, true- jobb)false AND
@@ -193,39 +229,29 @@ Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine.y = 20
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.1]{images/WhereBuild}
-		\caption{A lekérdezésből felépített bináris fa}
+		\caption{A WHERE utáni kifejezésből felépített bináris fa}
 		\label{fig:wherePostorderBuilder}
 	\end{center}
 \end{figure}
 
-\textit{Miért jó ez a sorrend?}
-Azért, mert itt már beszúrási sorrendben vannak, innentől kezdve felépíthető a fa.
+\begin{comment}{A fában rosszul szerepel néhány csomópont neve! pl.: 5, mine.location.x}
+\end{comment}
 
-A végső felépítés előtt még szükség van egy veremre, ami a lista tartalmát ugyan abban a sorrendben tárolja.
+Erre a rendezésre azért van szükség, mert így már beszúrási sorrendben vannak az elemek. Ennek a segítségével a fa már egyszerűbben felépíthető.
 
-A fa felépítése a következő képen történik:
+A fa felépítéséhez végigiterálunk az elemeken és minden csomópontjában beállítjuk sorban a gyerekelemeket. A levél elemekhez értelemszerűen nem kell gyerekelemet rendelnünk. Az eredmény \aref{fig:wherePostorderBuilder}. ábrán látható.
 
-Lista tartalma: AND, OR, mine.id = 10, AND, OR, mine.x < 10, mine IS Mine, mine.location.x, mine.y = 20
+Innentől kezdve rendelkezésünkre áll egy olyan bináris fagráf, amelyet postorder bejárásával a kifejezést az aktuális értékekkel ki tudjuk értékelni.
 
-A verem tartalma: AND, OR, mine.id = 10, AND, OR, mine.x < 10, mine IS Mine, mine.location.x, mine.y = 20
+\subsection{DELETE lekérdezés felépítése}
 
-A két kollekció tartalma tehát megegyezik. Az algoritmust egy for ciklusban valósítunk meg, ez a ciklus pedig a lista elemein iterál végig, és minden elemnek beállítja a gyerekeit úgy, hogy a verem tetejéről levesz két elemet.
-A levelekhez értelem szerűen nem lehet gyereket rendelni.
-
-Az eredmény a lenti képen látható.
-
-Innentől kezdve rendelkezésünkre áll egy olyan bináris fagráf, amelyet postorder bejárással végrehajtva a lekérdezés ki fog értékelődni.
-
-\section{DELETE lekérdezés felépítése}
-
-A következő lekérdezés érkezik az adatbázismotorhoz:
+Tegyük fel, hogy a következő lekérdezés érkezik az adatbázismotorhoz:
 \begin{sql}
 DELETE mine FROM azeroth WHERE mine.x > 10;
 \end{sql}
+Mint látható, ez is tartalmaz \texttt{WHERE} kulcsszót, ezért ennek a felépítéséhez is szükségünk lesz majd \texttt{WhereBuilder} objektumra.
 
-Nem csak a lekérdezésekhez készült Builder osztály, hanem a WHERE feltétel leíróhoz is, erre azért volt szükség, mert az a részfeladat nagyon komplex, illetve több lekérdezésben is szerepet kap. A WhereBuilder-t a lekérdezés felépítő osztályok magukba foglalják, definiálnak pontosan ugyan olyan metódusokat mint ami a WhereBuildernek van, és azokban csak tovább hívják annak azonos metódusait.
-
-Hasonlóan történt az implementáció a DeleteBuilder osztálynál is. 
+A \texttt{DELETE} lekérdezéseket a \texttt{DeleteBuilder} osztály segítségével alakíthatjuk át objektummá.
 
 \begin{figure}[htb]
 	\begin{center}
@@ -235,27 +261,26 @@ Hasonlóan történt az implementáció a DeleteBuilder osztálynál is.
 	\end{center}
 \end{figure}
 
-A szintaxis diagram alapján ezek a metódusok hívódnak meg a DeleteBuilder objektumnak:
+A szintaxis diagram alapján ezek a metódusai hívódnak meg a \texttt{DeleteBuilder} objektumnak:
 
-DeleteBuilder builder = new Builder(); \\
-builder.createDelete("mine"); \\ 
-builder.setFrom("azeroth"); \\
-builder.addOperandPiece("mine.x"); \\
-builder.addOperator(">"); \\
-builder.addOperandPiece("10"); \\
-builder.build(); \\
+\begin{java}
+DeleteBuilder builder = new Builder();
+builder.createDelete("mine");
+builder.setFrom("azeroth");
+builder.addOperandPiece("mine.x");
+builder.addOperator(">");
+builder.addOperandPiece("10");
+builder.build();
+\end{java}
 
-Minden builder osztályban definiáltunk egy build metódust, ami egy IQueryObject példányt ad vissza. Minden lekérdezés objektum implementálja az IQueryObject interfészt, ami egy execute() metódust tartalmaz.
+Minden builder osztályban definiáltunk egy \texttt{build} metódust, amely egy \texttt{IQueryObject} példányt ad vissza. Minden lekérdezés objektum implementálja az \texttt{IQueryObject} interfészt, amely egy \texttt{execute} metódust tartalmaz.
 
+\subsection{ALTER lekérdezés felépítése}
 
-
-\section{ALTER lekérdezés felépítése}
-
-A következő lekérdezés érkezik az adatbázismotorhoz:
+Az \texttt{ALTER}, osztályok szerkezetének módosítására szolgáló lekérdezés nyelvi diagramja \aref{fig:alterSytnax} ábrán látható. Tekintsük az alábbi, osztály attribútumának törlésére szolgáló lekérdezést!
 \begin{sql}
 ALTER CLASS Rectangle DELETEATTRIBUTE x;
 \end{sql}
-
 
 \begin{figure}[htb]
 	\begin{center}
@@ -267,32 +292,33 @@ ALTER CLASS Rectangle DELETEATTRIBUTE x;
 
 A builder objektum metódusainak használata a fenti lekérdezés esetében:
 
-AlterBuilder builder = new AlterBuilder(); \\
-builder.createAlter("Rectangle"); \\
-builder.setAlterType("DELETEATTRIBUTE"); \\
-builder.setStringAttribute("x"); \\
-builder.build(); \\
+\begin{java}
+AlterBuilder builder = new AlterBuilder();
+builder.createAlter("Rectangle");
+builder.setAlterType("DELETEATTRIBUTE");
+builder.setStringAttribute("x");
+builder.build();
+\end{java}
 
-Az Alter lekérdezés 4 típust definiál:
+Az \texttt{ALTER} lekérdezés 4 altípust definiál, úgy mint
 
 \begin{itemize}
-\item Osztálynév módosítás
-\item Attribútum törlés
-\item Attribútum definiálás
-\item Attribútum átnevezése
+\item osztálynév módosítása
+\item attribútum törlése
+\item attribútum definiálása
+\item attribútum átnevezése.
 \end{itemize}
 
-Ezek közül az attribútum létrehozáshoz és átnevezéshez egy plusz attribútumra van szükség, amelyet a builder.setOptionalValue(attribute-name or attribute-Type)
-metódussal állíthatjuk be.
+Ezek közül az attribútum létrehozáshoz és átnevezéshez egy plusz attribútumra van szükség, amelyet a \texttt{builder.setOptionalValue} metódussal állíthatunk be a megfelelő attribútum névre vagy típusra.
 
-\section{CREATE lekérdezés felépítése}
+\subsection{A CREATE lekérdezés felépítése}
 
-A CREATE lekérdezéssel adatbázist, térképet és osztály definíciót lehet létrehozni. Az adatbázisnak és a térképnek a definiálása a legkönnyebb lekérdezések egyike, és az osztály definiálása ugyan azon lépésekből áll, csak egy párat definiál pluszba hozzájuk.
+A \texttt{CREATE} lekérdezéssel adatbázist, térképet és osztály definíciót lehet létrehozni. Az adatbázisnak és a térképnek a definiálása (\ref{fig:createSytnax}. ábra) az egyszerűbben megvalósítható lekérdezések egyike. Az osztály definiálása (\ref{fig:createClassSytnax}. ábra) ahhoz képest csak néhány további lépést tartalmaz.
 
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.4]{images/create}
-		\caption{A CREATE lekérdezés szintaxis diagramja adatbázis és térkép létrehozásra szűkítve}
+		\caption{A \texttt{CREATE} lekérdezés szintaxis diagramja adatbázis és térkép létrehozásra szűkítve}
 		\label{fig:createSytnax}
 	\end{center}
 \end{figure}
@@ -300,14 +326,12 @@ A CREATE lekérdezéssel adatbázist, térképet és osztály definíciót lehet
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.4]{images/createclass}
-		\caption{A CREATE lekérdezés szintaxis diagramja osztálydefiníció definiálásához}
+		\caption{A \texttt{CREATE} lekérdezés szintaxis diagramja osztálydefiníció definiálásához}
 		\label{fig:createClassSytnax}
 	\end{center}
 \end{figure}
 
-
-
-A következő lekérdezés érkezik az adatbázismotorhoz:
+Tegyük fel, hogy a következő lekérdezés érkezik az adatbázismotorhoz:
 \begin{sql}
 CREATE CLASS Harcos(
 Number kor,
@@ -315,28 +339,31 @@ Number attack DEFAULT 10,
 String nev);
 \end{sql}
 
+Ennek hatására a \texttt{CreateBuilder} a következő módon fogja létrehozni a lekérdezés objektumot.
+
+\begin{java}
 CreateBuilder builder = new CreateBuilder();
-builder.setCreateType("CLASS"); \\
-builder.setTheCommonValue("Harcos"); \\
-builder.addAttributeParam("Number"); \\
-builder.addAttributeParam("kor"); \\
-builder.insertAttribute(); \\
-builder.addAttributeParam("Number"); \\
-builder.addAttributeParam("attack"); \\
-builder.addAttributeParam("10"); \\
-builder.insertAttribute(); \\
-builder.addAttributeParam("String"); \\
-builder.addAttributeParam("nev"); \\
-builder.build(); \\
+builder.setCreateType("CLASS");
+builder.setTheCommonValue("Harcos");
+builder.addAttributeParam("Number");
+builder.addAttributeParam("kor");
+builder.insertAttribute();
+builder.addAttributeParam("Number");
+builder.addAttributeParam("attack");
+builder.addAttributeParam("10");
+builder.insertAttribute();
+builder.addAttributeParam("String");
+builder.addAttributeParam("nev");
+builder.build();
+\end{java}
 
-Vessző karaktereknél és a ")" karakternél hívódik meg az insertAttribute metódus, ami beszúrja az attribútumot.
+Az \texttt{insertAttribute} metódus fogja beszúrni az attribútumokat, amely vessző és \texttt{)} karakterek hatására hívódik meg.
 
+\subsection{Az UPDATE lekérdezés felépítése}
 
-\section{UPDATE lekérdezés felépítése}
-
-A következő lekérdezés érkezik az adatbázismotorhoz:
+Az \texttt{UPDATE} lekérdezés szintaxisa \aref{fig:updateSytnax}. ábrán látható. Vizsgáljuk meg a következő lekérdezést!
 \begin{sql}
-UPDATE azeroth SET x=30,y=40 WHERE mine.id = 10;
+UPDATE azeroth SET x = 30, y = 40 WHERE mine.id = 10;
 \end{sql}
 
 \begin{figure}[htb]
@@ -347,55 +374,38 @@ UPDATE azeroth SET x=30,y=40 WHERE mine.id = 10;
 	\end{center}
 \end{figure}
 
-A parser ezeket a betódusokat hívja ebben a sorrendben ahhoz, hogy felépüljön a lekérdezés objktum:
+A lekérdezésobjektumot az \texttt{UpdateBuilder} osztály egy példánya fogja felépíteni a következő  metódushívásokat elvégezve.
 
-UpdateBuilder builder = new UpdateBuilder(); \\
-builder.createUpdate("azeroth"); \\
-builder.setType("SET"); \\
-builder.addSetAttribute("x"); \\
-builder.addSetAttributeValue(30); \\
-builder.addSetAttribute("y"); \\
-builder.addSetAttributeValue(40); \\
-builder.addOperandPiece("mine.id"); \\
-builder.addOperator("="); \\
-builder.addOperandPiece("10"); \\
-builder.build(); \\
+\begin{java}
+UpdateBuilder builder = new UpdateBuilder();
+builder.createUpdate("azeroth");
+builder.setType("SET");
+builder.addSetAttribute("x");
+builder.addSetAttributeValue(30);
+builder.addSetAttribute("y");
+builder.addSetAttributeValue(40);
+builder.addOperandPiece("mine.id");
+builder.addOperator("=");
+builder.addOperandPiece("10");
+builder.build();
+\end{java}
 
+\subsection{Az INSERT lekérdezés felépítése}
 
-\section{INSERT lekérdezés felépítése}
-
-Az Insert lekérdezés fában tárolja az objektumhoz tartozó attribútumokat. A kompozíció miatt, az attribútumok is tartalmazhatnak olyan attribútumokat, amelyek objektumok, így ezek között szülő-gyermek relációt lehet felfedezni, ezért a legegyszerűbb megoldásnak a fában való tárolás tűnt.
-
-A  \ref{fig:insertTreeBuilder}. ábrán látható gráfokkal dolgozik az INSERT lekérdezés objektum. A jobb oldali gráf az, amire szüksége van a lekérdezés objektumnak, viszont ezt a parser nem tudja előállítani, hisz az attribútumok és az értékek el vannak különítve egymástól a lekérdezésben. Látható, hogy a két baloldali gráfból előállítható az, amelyikre az INSERT objektumnak szüksége van, ezt viszont az InsertBuilder osztály a háttérben elvégzi.
-
-
+Az \texttt{INSERT} lekérdezés szintaxisdiagramja \aref{fig:insertSytnax}. ábrán látható, a benne szereplő \textit{attrList} és \texttt{valueList} kifejezéseké pedig \aref{fig:attrListSytnax}. és \aref{fig:valueListSytnax} ábrákon.
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.1]{images/InsertTreeBuilder}
-		\caption{Az INSERT lekérdezés adatábrázolása }
-		\label{fig:insertTreeBuilder}
+		\includegraphics[scale=0.4]{images/insert}
+		\caption{Az \texttt{INSERT} lekérdezés szintaxis diagramja}
+		\label{fig:insertSytnax}
 	\end{center}
 \end{figure}
-
-
-Az algoritmus az InsertBuilder gyártó osztály mögött:
-
-A parser amikor a builder segítségével felépíti a lekérdezésobjektumot, akkor igazából a háttérben két listát tölt fel, majd a builder fogja felépíteni az objektumot a háttérben. Azért van szükség két listára, mert a lekérdezésben az attribútumok leírása, és az értékek megadása elválasztva szerepel, és így nem lehet egy metódusban létrehozni az attribútumokat. 
-
-Az Insert osztályon belül található egy TreeBuilder osztály, amely TreeNode csomópontokat tárol, és építi fel őket.
-Amikor az InsertBuilder metódusai kívülről meghívódnak, ő az Insertből példányosított objektumnak a TreeBuilder metódusait hívja tovább.
-
-Attribútum lista: Ebben a listában tárolom az attribútumokat sorrendben, metaadatként tárolva azt, hogy beszúrást követően a fában a szülő felé kell-e lépni, és ha igen, akkor hány szintet.A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal felső sarokban lévőt tárolja.
-
-Érték lista: Ebben a listában tárolom a VALUES kulcsszó után feltüntetett értékeket. A \ref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal alsó sarokban lévőt tárolja.
-
-Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és ha mindkettőt feltöltötte a parser, akkor az összeillesztésükhöz már csak egy iterációt kell megvalósítani, és a builder tovább tud hívni az INSERT objektum felé úgy, hogy attribútumot, és mellé értéket is párosít.
 
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.4]{images/attrList}
-		\caption{Az INSERT szintaxis diagram attrList komponense}
+		\caption{Az \texttt{INSERT} szintaxis diagram \textit{attrList} komponense}
 		\label{fig:attrListSytnax}
 	\end{center}
 \end{figure}
@@ -403,23 +413,40 @@ Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és 
 \begin{figure}[htb]
 	\begin{center}
 		\includegraphics[scale=0.4]{images/valueList}
-		\caption{Az INSERT szintaxis diagram valueList komponense}
+		\caption{Az \texttt{INSERT} szintaxis diagram \textit{valueList} komponense}
 		\label{fig:valueListSytnax}
 	\end{center}
 \end{figure}
 
+Ennek a lekérdezésnek az esetében is a builder objektum fában tárolja az objektumhoz tartozó attribútumokat. A kompozíció miatt, az attribútumok is tartalmazhatnak olyan attribútumokat, amelyek objektumok, így ezek között szülő-gyermek relációt lehet felfedezni, ezért a legegyszerűbb megoldásnak a fában való tárolás bizonyult.
+
+\Aref{fig:insertTreeBuilder}. ábrán látható gráfokkal dolgozik az \texttt{INSERT} lekérdezés objektum. A jobb oldali gráf az, amelyre szüksége van a lekérdezés objektumnak, viszont ezt a nyelvi értelmező nem tudja előállítani, mivel az attribútumok és az értékek el vannak különítve egymástól a lekérdezésben. Látható, hogy a két baloldali gráfból előállítható az, amelyikre az \texttt{INSERT} objektumnak szüksége van, ezt viszont az \texttt{InsertBuilder} osztály a háttérben elvégzi.
+
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.4]{images/insert}
-		\caption{Az INSERT lekérdezés szintaxis diagramja}
-		\label{fig:insertSytnax}
+		\includegraphics[scale=0.1]{images/InsertTreeBuilder}
+		\caption{Az \texttt{INSERT} lekérdezés ábrázolása}
+		\label{fig:insertTreeBuilder}
 	\end{center}
 \end{figure}
 
+Az \texttt{InsertBuilder} a lekérdezésobjektum előállításához a háttérben két listát kezel. Az egyikben a séma megadása, tehát az attribútumokból felépíthető fa, míg a másikban az azonos szerkezetű, de már attribútum értékeket tartalmazó fa elemei szerepelnek.
 
-\section{DROP lekérdezés felépítése}
+Az \texttt{Insert} osztályon belül található egy \texttt{TreeBuilder} osztály, amely \texttt{TreeNode} csomópontokat tárol, és építi fel őket.
+Amikor az \texttt{InsertBuilder} metódusai kívülről meghívódnak, ő az \texttt{Insert}-ből példányosított objektumnak közvetetten a \texttt{TreeBuilder} metódusait hívja tovább.
 
-A DropBuilder implementálásakor semmilyen bonyodalomba nem ütköztünk.
+Az attribútum listában sorrendben tárolom az attribútumokat, illetve metaadatként azt, hogy a beszúrást követően a fában a szülő felé kell-e lépni, és ha igen, akkor hány szintet. \Aref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal felső sarokban lévőt tárolja.
+
+Az érték listában tárolom a \texttt{VALUES} kulcsszó után feltüntetett értékeket. \Aref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal alsó sarokban lévőt tárolja.
+
+\begin{comment}{Esetleg az ábrára is oda lehet írni, hogy melyik-melyik.}
+\end{comment}
+
+Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és ha mindkettőt feltöltötte a nyelvi feldolgozó, akkor az összeillesztésükhöz már csak egy iterációt kell megvalósítani, és a builder már attribútum-érték párokkal tud tovább dolgozni.
+
+\subsection{DROP lekérdezés felépítése}
+
+A \texttt{DROP} lekérdezéssel adatbázisokat, osztályokat és térképeket törölhetünk (\ref{fig:dropSytnax}. ábra). Ezt egy \texttt{DropBuilder} típusú objektum tudja lekérdezés objektummá átalakítani. Az átalakítás lépései kézenfekvő módon adódnak.
 
 \begin{figure}[htb]
 	\begin{center}
@@ -431,9 +458,6 @@ A DropBuilder implementálásakor semmilyen bonyodalomba nem ütköztünk.
 
 \section{Számítások optimalizálása}
 
-Az adatbázismotor feladata levenni a terhet a felhasználó válláról, 
-optimalizált algoritmusokkal támogatni a lekérdezéseket. Térképfelosztás, pályaelem összevonás, ezek mind olyan feladatok,
-amelyek a térképműveletek gyorsabb végrehajtását idézik elő.
-Mivel a dolgozatnak egyenlőre nem célja, hogy a piacon versenyképes szoftver legyen, ezért az optimalizálás nem került bele a dolgozatba.
+Az adatbázismotor feladata levenni a terhet a felhasználó válláról,  optimalizált algoritmusokkal támogatni a lekérdezéseket. Térképfelosztás, pályaelem összevonás, ezek mind olyan feladatok, amelyek a térképműveletek gyorsabb végrehajtását idézik elő.
 
-
+A dolgozat elsődleges célja a lekérdezőnyelv definiálása, és egy prototípus jellegű adatbázismotor implementálása. Az optimalizáció a későbbiekben nagyon fontos feladat, viszont egy olyan, nagyobb különálló témakörről van szó, amelynek bemutatása nem szerepel a dolgozat célkitűzései között.
