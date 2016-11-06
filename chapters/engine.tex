@@ -126,7 +126,7 @@ Az alkalmazás a \texttt{Collision} interfészen keresztül veheti igénybe az �
 
 Az ütközésvizsgálatra nézzük az alábbi példát!
 \begin{sql}
-UPDATE azeroth MOVE mine TO Point(10,10) WHERE mine.id = 11; 
+UPDATE azeroth MOVE mine TO [10,10] WHERE mine.id = 11; 
 \end{sql}
 A fenti lekérdezés azokat az objektumokat mozgatja el a $(10, 10)$ pontba, amelyeknek van \texttt{id} attribútuma, és annak értéke 11. Ebben az esetben ütközést vizsgálva mozgat, tehát egyáltalán nem biztos, hogy a lekérdezés eredménye az lesz, hogy a feltételre megfelelő objektumok a $(10, 10)$ pontba kerülnek, mert előfordulhat, hogy ütköznek, és abban az esetben az adatbázismotor számol nekik új pozíciót.
 
@@ -234,8 +234,6 @@ Mélység: 4 gyerek oldal:(false-bal, true- jobb)true mine.y = 20
 	\end{center}
 \end{figure}
 
-\begin{comment}{A fában rosszul szerepel néhány csomópont neve! pl.: 5, mine.location.x}
-\end{comment}
 
 Erre a rendezésre azért van szükség, mert így már beszúrási sorrendben vannak az elemek. Ennek a segítségével a fa már egyszerűbben felépíthető.
 
@@ -325,7 +323,7 @@ A \texttt{CREATE} lekérdezéssel adatbázist, térképet és osztály definíci
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.4]{images/createclass}
+		\includegraphics[scale=0.38]{images/createclass}
 		\caption{A \texttt{CREATE} lekérdezés szintaxis diagramja osztálydefiníció definiálásához}
 		\label{fig:createClassSytnax}
 	\end{center}
@@ -368,7 +366,7 @@ UPDATE azeroth SET x = 30, y = 40 WHERE mine.id = 10;
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.4]{images/update}
+		\includegraphics[scale=0.39]{images/update}
 		\caption{Az UPDATE lekérdezés szintaxis diagramja}
 		\label{fig:updateSytnax}
 	\end{center}
@@ -424,7 +422,7 @@ Ennek a lekérdezésnek az esetében is a builder objektum fában tárolja az ob
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.1]{images/InsertTreeBuilder}
+		\includegraphics[scale=0.09]{images/InsertTreeBuilder}
 		\caption{Az \texttt{INSERT} lekérdezés ábrázolása}
 		\label{fig:insertTreeBuilder}
 	\end{center}
@@ -439,8 +437,6 @@ Az attribútum listában sorrendben tárolom az attribútumokat, illetve metaada
 
 Az érték listában tárolom a \texttt{VALUES} kulcsszó után feltüntetett értékeket. \Aref{fig:insertTreeBuilder}. ábrán látható gráfok közül ez a lista a bal alsó sarokban lévőt tárolja.
 
-\begin{comment}{Esetleg az ábrára is oda lehet írni, hogy melyik-melyik.}
-\end{comment}
 
 Az attribútum és az érték lista is egyaránt ugyan annyi elemet tárol, és ha mindkettőt feltöltötte a nyelvi feldolgozó, akkor az összeillesztésükhöz már csak egy iterációt kell megvalósítani, és a builder már attribútum-érték párokkal tud tovább dolgozni.
 
