@@ -20,35 +20,34 @@ A nyelv tehát adott problémakörben felmerülő feladatokra ad hatékony megol
 \section{Térképadatbázisok}
 
 A térképadatok kezelési módja jelentősen eltér a hagyományosan táblázatos formában ábrázolható adatokétól. A geoinformatikában gyakran szükség van ilyen adatok nyilvántartására, például földmérés, távérzékelés és egyéb földrajzi adatok esetén. Ahhoz, hogy ez hatékonyan menjen végbe térképadatbázisokat hoztak létre, amelyek sajátos adattípusokat és műveleteket biztosítanak.
-A térinformatikai rendszerek lényege, hogy grafikus(térképi), és nem grafikus(leíró) adatokat együtt képes kezelni.
+A térinformatikai rendszerek lényege, hogy grafikus (térképi), és nem grafikus (leíró) adatokat együtt képes kezelni.
 
-A térképi információ két kódolási módja:
-
-Raszteres kódolás: A képet itt mátrixban tároljuk. A térinformatikai alkalmazásokban általában a TIFF(Tagged Image File) grafikus formátumot használják.
-
-
-Vektoros kódolás: A képet rajzelemek halmazaként tároljuk(a leggyakoribb rajzelem a vektor). Ez a mérnöki tervező rendszerek gyakori adatformátuma.
-
-OGC modell: Open Geospital Consortium, egy olyan szervezet, amely számos vállalkozás és cég együttes összefogásából jött létre azért, hogy a térbeli adatkezelés elméleti és gyakorlati kérdéseit tisztázzák, és szabványosítsák. 
-
-Osztályhierarchia:Az osztályokhoz metódusok és attribútumok tartozhatnak. Ezen osztályok öröklési hierarchiát alkotnak, tehát a leszármazott osztály örökli az ős metódusait és attribútumait, ezeket sajátokkal egészítheti ki. 
-
-OGC osztályhierarchia:
-\begin{itemize}  
-\item Alakzat(Geometry): Ez nem példányosítható, ez csak absztarkt osztályként funkciónál.
-\item Pont(Point): Megadható x,y koordinátákkal
-\item Görbe(Curve): Nem példányosítható. Határa a két végpontja, és akkor tekintük egyszerűnek, ha önmagát nem metszi.
-\item Vonal(Line): Négy koordináta segítségével írható le(x1,y1,x2,y2).
-\item Felület(Surface): Egybefüggő felület, amely lyukakat tartalmazhat.
-\item Poligon(Polygon): x1,y1,....,xn,yn koordinátákkal írható le.
-\item Kollekció(GeometryCollection): Közös koordináta rendszerben megadott tetszőleges alakzatok halmaza.
-\item Ponthalmaz(MultiPoint): Ilyen például a településhalmaz, vagy városokban a \\ buszmegálló halmaz. 
-\item Vonallánchalmaz(MultiLineString):Folyóhálózatok és úthálózatok tárolására alkalmazzák.
-\item Felülethalmaz(MultiSurface): Nem metszhetik egymást az elemei, de véges sok pontban érinthetik egymást.
-\item Poligonhalmaz(MultiPolygon): Tórendszerek és erdőfoltok tárolása.
+A térképen lévő információkat alapvetően kétféle módon lehet tárolni.
+\begin{itemize}
+\item Raszteres kódolás esetén a képet mátrixban tároljuk. A térinformatikai alkalmazásokban általában a TIFF (\textit{Tagged Image File}) grafikus formátumot használják.
+\item Vektoros kódolásnál A képet rajzelemek halmazaként tároljuk. Ez a mérnöki tervező rendszerek is gyakran ezt a megoldást alkalmazzák.
 \end{itemize}
 
+Az \textit{Open Geospatial Consortium} egy olyan szervezet, amely számos vállalkozás és cég együttes összefogásából jött létre azért, hogy a térbeli adatkezelés elméleti és gyakorlati kérdéseit tisztázzák, és szabványosítsák. A következőkben röviden bemutatásra kerül az a modell, amit kidolgoztak.
 
+A térképen szerepeltethető alakzatokat osztályhierarchiába rendezték. Az osztályokhoz metódusok és attribútumok tartozhatnak. Ezen osztályok öröklési hierarchiát alkotnak, tehát a leszármazott osztály örökli az ős metódusait és attribútumait, azokat sajátokkal egészítheti ki. 
+
+Az OGC osztályhierarchia a következő fontos elemekből áll.
+\begin{itemize}  
+\item Alakzat (\textit{Geometry}): Ez nem példányosítható, ez csak absztarkt osztályként funkciónál.
+\item Pont (\textit{Point}): Megadható $x, y$ koordinátákkal
+\item Görbe (\textit{Curve}): Nem példányosítható. Határa a két végpontja, és akkor tekintjük egyszerűnek, ha önmagát nem metszi.
+\item Vonal (\textit{Line}): Négy koordináta (vagyis két pont) segítségével írható le ($x_1$, $y_1$, $x_2$, $y_2$).
+\item Felület (\textit{Surface}): Egybefüggő felület, amely lyukakat tartalmazhat.
+\item Poligon (\textit{Polygon}): $x_1, y_1, \ldots, x_n, y_n$ koordinátákkal írható le.
+\item Kollekció (\textit{GeometryCollection}): Közös koordináta rendszerben megadott tetszőleges alakzatok halmaza.
+\item Ponthalmaz (\textit{MultiPoint}): Ilyen például a településhalmaz, vagy városokban a buszmegálló halmaz. 
+\item Vonallánchalmaz (\textit{MultiLineString}): Folyóhálózatok és úthálózatok tárolására alkalmazzák.
+\item Felülethalmaz (\textit{MultiSurface}): Nem metszhetik egymást az elemei, de véges sok pontban érinthetik egymást.
+\item Poligonhalmaz (\textit{MultiPolygon}): Tórendszerek és erdőfoltok tárolása.
+\end{itemize}
+
+A modell sok olyan elemet tartalmaz, amely a bemutatásra kerülő lekérdezőnyelvben, annak típusrendszerében szerepelni fog.
 
 % A játékfejlesztésben milyen problémák vannak, amelyekre egy adatbázismotor megoldást tud adni?
 
