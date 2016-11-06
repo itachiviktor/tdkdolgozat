@@ -18,16 +18,17 @@ A grafikus szerkesztőeszközt is Java nyelven implementáltam. Itt a szerkeszt�
 
 \begin{figure}[htb]
 	\begin{center}
-		\includegraphics[scale=0.3]{images/editor}
+		\includegraphics[scale=0.34]{images/editor}
 		\caption{A Tile Editor használat közben}
 		\label{fig:editor}
 	\end{center}
 \end{figure}
 
-A File menü alatt hozható létre új adatbázis, azon belül új map, illetve létező adatbázis, és map is innen érhető el. Ez a menüpont tartalmaz még egy Save opciót is, ami arra szolgál, hogy a változtatásokat mentsük a JSOn fájlba. Ha módosítunk az adatbázison, de a Save menüt nem használjuk, akkor az editor kikapcsolása után a memóriából az összes változtatás eltűnik, és perzsiztens állapotról így nem gondoskodik.
+A File menü alatt hozható létre új adatbázis, azon belül új map, illetve létező adatbázis, és map is innen érhető el. Ez a menüpont tartalmaz még egy Save opciót is, ami arra szolgál, hogy a változtatásokat mentsük a JSON fájlba. Ha módosítunk az adatbázison, de a Save menüt nem használjuk, akkor az editor kikapcsolása után a memóriából az összes változtatás eltűnik, és perzsiztens állapotról így nem gondoskodik.
 
 Settings menü egyetlen funkciót tartalmaz, a Camera Settings beállítást, ami arra szolgál, hogy az irányító gombokkal(fel,le,jobbra,balra) hány pixelt ugorjon a kamera. Az alapértelmezett beállítás az, hogy az y tengely és az x tengely irányába is 10 pixellel mozdul el.
 Ez azért fontos, mert nem lehet egérrel képeket beszúrni, hanem a "Move to Map" gombra kattintva szúr be egy képet a térképből látható terület bal felső sarkához igazítva. 
+A "Filling" gomb mögött implementáltuk azt a funkciót, amely lehetővé teszi azt, hogy a beszúrandó képeket ne egyesével, hanem egy bizonyos területet kitöltve szúrhassunk be. Ez is egy kényelmi eszköz, mellyel megadhatunk egy befoglaló téglalapot, amelyet kitölt.
 
 A Help menü alatt található egy rövid használati útmutató az alkalmazáshoz.
 
