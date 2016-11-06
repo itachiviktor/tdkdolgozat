@@ -176,9 +176,10 @@ A ponthoz hasonlóan itt is megadható függetlenül a két \textit{Number} ért
 A \textit{Rectangle} típus téglalap adatainak tárolására szolgál. Tartalmaz egy pontot, amelyben tárolja a bal felső sarkának koordinátáit, illetve egy kiterjedést, amely a szélesség és magasság attribútumokat adja.
 
 \begin{sql}
-INSERT Rectangle(location(x, y), size(width, height)) INTO
-azeroth VALUES((10, 10), (100, 200));
-INSERT Rectangle(x, y, width, height) INTO azeroth VALUES(10, 20, 30, 40);
+INSERT Rectangle(location(x, y), size(width, height)) INTO azeroth 
+VALUES((10, 10), (100, 200)); 
+INSERT Rectangle(x, y, width, height) INTO
+azeroth VALUES(10, 20, 30, 40);
 \end{sql}
 
 Itt az a lényeg, hogy lehet belül azzal a new nélküli kifejezéssel is visszaadatni új objektumot.
@@ -336,7 +337,7 @@ A fenti lekérdezés azokat az objektumokat gyűjti ki, amelyek \texttt{x} attri
 Az alábbi lekérdezés azokat az objektumokat választja ki, amelyek nem tartalmazzák a $(10, 10)$ pontot.
 \begin{sql}
 SELECT mine FROM azeroth
-WHERE NOT(mine COLLIDE POINT(10, 10));
+WHERE NOT(mine COLLIDE [10, 10]);
 \end{sql}
 
 
@@ -362,7 +363,7 @@ Térképet létrehozni hasonlóképpen a
 \begin{sql}
 CREATE MAP azeroth;
 \end{sql}
-formában lehet. Ekkor az aktuálisan megnyitott adatbázison belül jön létre egy \texttt{azeroth} nevű térkép.
+formában lehet. Ekkor az aktuálisan megnyitott adatbázison belül jön létre egy \\ \texttt{azeroth} nevű térkép.
 
 \subsection{Saját osztályok definiálása}
 
@@ -415,9 +416,6 @@ csak akkor lehet, ha egyik térképen sem tartozik már hozzá létrehozott pél
 \subsection{Osztálydefiníciók megváltoztatása}
 
 Az adatbázis szerkezetét az \texttt{ALTER} lekérdezéssel lehet megváltoztatni. Ez elsősorban az osztálydefiníciók módosítását jelenti. Ahogy a törlésnél, a szerkezet megváltoztatása itt is csak akkor lehetséges, ha az adott osztálydefinícióhoz nem tartozik példány.
-
-\begin{comment}{Ez így nem túl erős megkötés?}
-\end{comment}
 
 A lekérdezésnek 4 altípusa van.
 \begin{itemize}
@@ -582,7 +580,7 @@ Az alábbi lekérdezés eredménye egy olyan halmaz, amelyben olyan \texttt{Mine
 \begin{sql}
 SELECT mine
 FROM azeroth
-WHERE mine COLLIDE Point(10, 10) AND mine IS Mine
+WHERE mine COLLIDE [10, 10] AND mine IS Mine
 ORDER BY mine.id
 LIMIT 5;
 \end{sql}
@@ -620,7 +618,7 @@ Az alábbi lekérdezés kiválasztja azokat az elemeket a térképről, amelyek 
 \begin{sql}
 SELECT mine
 FROM azeroth
-WHERE mine COLLIDE [10, 10] AND mine.distanceFrom(20, 20) > 30;
+WHERE mine COLLIDE [10, 10] AND mine.distanceFrom[20, 20] > 30;
 \end{sql}
 
 \subsection{Alszelektek használata}
@@ -632,9 +630,9 @@ WHERE mine COLLIDE [
     { SELECT number FROM azeroth WHERE number.id = 21 },
     { SELECT number FROM azeroth WHERE number.id = 34 }
 ] AND
-mine.distanceFrom(Point(
+mine.distanceFrom([
     { SELECT number FROM azeroth WHERE number.id = 34 },
-    { SELECT number FROM azeroth WHERE number.id = 34 }))
+    { SELECT number FROM azeroth WHERE number.id = 34 }])
     >
     { SELECT number FROM { SELECT number FROM outland }
       WHERE number.id = 34
@@ -665,7 +663,7 @@ Az útvonaltervezés a nyelv részét képezi, viszont az aktuális implementác
 
 A nyelvben egy útvonalra vonatkozó lekérdezés például a következőképpen nézhet ki.
 \begin{sql}
-SELECT mine.closestPath(Point(10, 10))
+SELECT mine.closestPath([10, 10])
 FROM azeroth WHERE mine.id = 11;
 \end{sql}
 Ez visszad egy \texttt{Path} objektumot, mint útvonalpontok linkelt halmazát.
