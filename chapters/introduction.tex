@@ -2,17 +2,11 @@
 
 Számos alkalmazásban (tipikusan például a számítógépes játékokban) szükség  van kétdimenziós térképek adatainak tárolására, és az azokon lévő entitások kezelésére. Ennek a megvalósítása az egyes implementációkban sok közös elemet tartalmaz. Az általam definiált lekérdezőnyelv, és a hozzá készített adatbázis kezelő rendszer eszközt biztosít a programozók számára, hogy a térképek elemeit, és az elemek attribútumait egyszerűbben, egy lekérdezőnyelvi interfészen keresztül érhessék el. A térképen lévő elemeket entitásoknak nevezzük. A nyelvben definiálhatjuk az entitások osztályait. Az adatbázismotor a gyakori műveletekhez nyelvi szintű támogatást ad. Megfogalmazhatunk például olyan lekérdezéseket, amelyekkel entitások ütközését, vagy az azok közötti távolságokat vizsgáljuk. Adatbázisról lévén szó a fejlesztőknek nem szükséges a térképadatok perzisztens tárolási módjával külön foglalkozniuk.
 
-Az ötlet, hogy szükség lenne egy ilyen domain specifikus lekérdezőnyelvre, játékfejlesztés közben merült fel, illetve fejlesztői fórumok olvasgatása közben, ugyanis sokan kétségbe voltak esve, hogyan is lehetne kétdimenziós játékhoz pályát generálni, és kezelni azt, ezért hosszas kutatás után a témában megállapítottam, hogy ilyen szolgáltatás egyenlőre még nem készült, viszont igény lenne a meglétére.
+Az ötlet, hogy szükség lenne egy ilyen domain specifikus lekérdezőnyelvre, játékfejlesztés közben merült fel, illetve fejlesztői fórumok olvasgatása közben, ugyanis sokan kétségbe voltak esve, hogyan is lehetne kétdimenziós játékhoz pályát generálni, és kezelni azt, ezért hosszas kutatás után a témában megállapítottam, hogy ilyen szolgáltatás egyenlőre még nem készült, viszont igény lenne a meglétére
+\footnote{A kutató munka a Miskolci Egyetem stratégiai kutatási területén működő  Mechatronikai és Logisztikai Kiválósági Központ keretében valósult meg.}.
 
-A dolgozat a deklaratív lekérdezőnyelv, az adatbázis prototípusnak illetve az adminisztrációs felületnek tekinthető térképszerkesztő bemutatására koncentrál.
+A dolgozat a deklaratív lekérdezőnyelv, az adatbázis prototípusnak illetve az adminisztrációs felületnek tekinthető térképszerkesztő bemutatására koncentrál. Az általam feltüntetett lekérdezésekben az \textit{azeroth} elnevezésű térkép a \textit{World Of Warcraft} közismert online szerepjátékban egy világ, és arról neveztem el. A \texttt{Mine} és \texttt{Stone} objektumok a példa lekérdezésekben azért szerepelnek, hogy bemutatásra kerülhessen olyan lekérdezés, amelyben nem csak primitív típusokkal, hanem objektumokkal is dolgozunk. A bánya és a szikla választása objektumtípusnak kézenfekvő volt, mivel a szerepjátékokban ezek gyakran előfordulnak, a játékfejlesztés pedig az adatbázismotor egyik kiemelt alkalmazási területe. A dolgozatban bemutatott szoftverek implementációja a következő \textit{GitHub} repozitóriumokban érhető el:
 
-Az általam feltüntetett lekérdezésekben az \textit{azeroth} elnevezésű térkép a \textit{World Of Warcraft} közismert online szerepjátékban egy világ, és arról neveztem el.
+\textit{https://github.com/itachiviktor/Database}
 
-A \texttt{Mine} és \texttt{Stone} objektumok a példa lekérdezésekben azért szerepelnek, hogy bemutatásra kerülhessen olyan lekérdezés, amelyben nem csak primitív típusokkal, hanem objektumokkal is dolgozunk. A bánya és a szikla választása objektumtípusnak kézenfekvő volt, mivel a szerepjátékokban ezek gyakran előfordulnak, a játékfejlesztés pedig az adatbázismotor egyik kiemelt alkalmazási területe.
-
-A dolgozatban említett szoftverek a következő címeken érhetőek el:
-\begin{itemize}
-\item Az adatbázismotor implementáció: \textit{https://github.com/itachiviktor/Database}
-\item A szerkesztő eszköz implementáció: \textit{https://github.com/itachiviktor/TileEditor}
-\end{itemize}
-
+\textit{https://github.com/itachiviktor/TileEditor}
