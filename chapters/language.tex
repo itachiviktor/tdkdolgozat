@@ -12,6 +12,8 @@ A lekérdezőnyelv bemutatása előtt érdemes megnézni, hogy az adatbázis hog
 \item \textit{entitás}: Egy \texttt{Entity} alaptípusból létrehozott példány. Ezek azok, amelyek a térképen ténylegesen meg is fognak jelenni.
 \end{itemize}
 
+A lekérdezőnyelv bemutatására, az elemek funkcióinak definiálására ebben a fejezetben kerül sor. Az egyes lekérdezéstípusokhoz, és kifejezésekhez tartozó nyelvi diagramokat az implementációval foglalkozó fejezetben találjuk.
+
 A következő szakaszok arra térnek ki, hogy a gyakorlatban előforduló gyakori problémákat milyen formában oldhatjuk meg a lekérdezőnyelv segítségével majd.
 
 \subsection{Alkalmazáslogika kezelése}
@@ -54,7 +56,7 @@ A következő szakaszokban az alaptípusok bemutatására kerül sor. A használ
 
 \begin{figure}[htb]
 \begin{center}
-    \includegraphics[scale=0.5]{images/types}
+    \includegraphics[scale=0.7]{images/types}
     \caption{A lekérdezőnyelv alaptípusai}
     \label{fig:types}
 \end{center}
@@ -65,13 +67,12 @@ A következő szakaszokban az alaptípusok bemutatására kerül sor. A használ
 A \textit{Boolean} a nyelvben a logikai adattípus. Értéke \texttt{true} vagy \texttt{false} lehet. Paraméter nélküli létrehozás esetén az alapértelmezett értéke \texttt{false}. Az alábbi példákban az \texttt{azeroth} nevű térképre kerülnek beszúrásra logikai értékek.
 
 \begin{sql}
-INSERT Boolean() INTO azeroth;
-INSERT Boolean(true) INTO azeroth; 
-INSERT Boolean(false) INTO azeroth;
-INSERT Boolean(
+INSERT Boolean INTO azeroth VALUES (true);
+INSERT Boolean INTO azeroth VALUES (false);
+INSERT Boolean INTO azerith VALUES (
     { SELECT bool FROM azeroth
       WHERE bool IS Boolean AND bool.id = 11 }
-) INTO azeroth;
+);
 \end{sql}
 
 Az utolsó példából látható, hogy a logikai típusú objektum is teljes értékű objektum, így az is rendelkezik azonosítóval (\texttt{id}).
@@ -81,16 +82,15 @@ Az utolsó példából látható, hogy a logikai típusú objektum is teljes ér
 A \textit{Number} típus valós vagy egész szám 4 byteon való tárolására alkalmas. A lekérdezőnyelv nem különböztet meg előjeles és előjel nélküli változatot.
 
 \begin{sql}
-INSERT Number(1.2) INTO azeroth;
-INSERT Number(12) INTO azeroth;
-INSERT Number(
+INSERT Number INTO azeroth VALUES (2);
+INSERT Number INTO azeroth VALUES (
     { SELECT number FROM azeroth
       WHERE number IS Number AND number.id = 11 }
-) INTO azeroth;
-INSERT Number(
+);
+INSERT Number INTO azeroth VALUES (
     { SELECT number FROM azeroth
       WHERE number HAS x AND number.x IS Number AND number.id = 11 }
-) INTO azeroth;
+);
 \end{sql}
 
 \subsection{String}
@@ -98,12 +98,11 @@ INSERT Number(
 Szöveges értékek tárolására a \textit{String} típust használhatjuk.
 
 \begin{sql}
-INSERT String("alma") INTO azeroth;
-INSERT String(
+INSERT String INTO azeroth VALUES (alma);
+INSERT String INTO azeroth VALUES (
     { SELECT string FROM azeroth
       WHERE string IS String AND string.id = 11 }
-)
-INTO azeroth;
+);
 \end{sql}
 
 \subsection{Point}
@@ -353,7 +352,7 @@ A kiértékelésben a zárójelnek szerepe lehet, ezt az eszközt a felhasznál�
 
 \section{Metódusok}
 
-Csak a nyelv alaptípusai (\texttt{Boolean}, \texttt{Number}, \texttt{Vector}, \texttt{Rectangle}, stb.) rendelkeznek metódusokkal. Amikor a felhasználó készít saját osztálydefiníciót, ő csak adatleírást végezhet, metódusokat nem definiálhat hozzájuk. Az alaptípusokhoz elkészített metódusok a típusokhoz valamely szolgáltatást jelentenek. Jelenleg egyetlen metódust definiáltunk a lekérdezőnyelvbe, amely a \texttt{distanceFrom(Number x, Number x)}. Ez a metódus visszaad egy \texttt{Number} értéket, amely a távolság az objektum és a megadott pont között. Ezt a metódust minden olyan objektumra meg lehet hívni, amely rendelkezik $(x, y)$ koordinátákkal, illetve szélesség (\texttt{width}), és magasság (\texttt{height}) attribútumokkal.
+Csak a nyelv alaptípusai (\texttt{Boolean}, \texttt{Number}, \texttt{Vector}, \texttt{Rectangle}, stb.) rendelkeznek metódusokkal. Amikor a felhasználó készít saját osztálydefiníciót, ő csak adatleírást végezhet, metódusokat nem definiálhat hozzájuk. Az alaptípusokhoz elkészített metódusok a típusokhoz valamely szolgáltatást jelentenek. Jelenleg egyetlen metódust definiáltam a lekérdezőnyelvbe, amely a \texttt{distanceFrom(Number x, Number x)}. Ez a metódus visszaad egy \texttt{Number} értéket, amely a távolság az objektum és a megadott pont között. Ezt a metódust minden olyan objektumra meg lehet hívni, amely rendelkezik $(x, y)$ koordinátákkal, illetve szélesség (\texttt{width}), és magasság (\texttt{height}) attribútumokkal.
 
 \section{DDL adatdefiníciós utasítások}
 
@@ -386,7 +385,7 @@ CREATE CLASS Mine(
 \end{sql}
 Automatikusan minden \texttt{INSERT} lekérdezés hatására beillesztődik egy \texttt{id} attribútum az objektumhoz. A definiált osztályok ezt implicit tartalmazzák, azt nem kell definiálni a \texttt{CREATE} lekérdezésben.
 
-Amikor definiálunk egy osztályt, akkor nincs lehetőségünk származtatásra. Tervezéskor a kompozíciót tartottuk a megfelelő megoldásnak, ami azt jelenti, hogy nem leszármaztatunk egy osztályból, hanem adattagként tároljuk azt, és tovább hívjuk annak metódusait.
+Amikor definiálunk egy osztályt, akkor nincs lehetőségünk származtatásra. Tervezéskor a kompozíciót tartottam a megfelelő megoldásnak, ami azt jelenti, hogy nem leszármaztatunk egy osztályból, hanem adattagként tároljuk azt, és tovább hívjuk annak metódusait.
 
 Az osztálydefiníciókban természetesen megadhatunk attribútum típusként más osztálydefiníciókat is, például:
 \begin{sql}
@@ -413,7 +412,7 @@ Egy adatbázist, térképet és osztálydefiníciót a \texttt{DROP} lekérdezé
 DROP DATABASE db1;
 DROP MAP azeroth;
 \end{sql}
-A két fenti utasítás értelemszerűen törlést visz végbe. Ha törlök egy adatbázist, akkor minden benne lévő térkép és osztálydefiníció törlődik.
+A két fenti utasítás értelemszerűen törlést visz végbe. Ha törlünk egy adatbázist, akkor minden benne lévő térkép és osztálydefiníció törlődik.
 
 Osztálydefiníció törölni, például
 \begin{sql}
@@ -443,7 +442,7 @@ Attribútumot eltávolítani a \texttt{DELETEATTRIBUTE} kulcsszóval lehet. Pél
 ALTER CLASS Mine DELETEATTRIBUTE size;
 \end{sql}
 \item
-A RENAMECLASS az osztály nevének megváltoztatása szolgál, például
+A \texttt{RENAMECLASS} az osztály nevének megváltoztatása szolgál, például
 \begin{sql}
 ALTER CLASS Mine RENAMECLASS BigMine;
 \end{sql}
@@ -456,7 +455,7 @@ ALTER CLASS Mine RENAMECLASS BigMine;
 Új objektum felvinni egy térképre \texttt{INSERT} lekérdezéssel lehet, például
 \begin{sql}
 INSERT Szobor(location, name) INTO azeroth
-VALUES ((10, 10), "Jani") LAYER 1;
+VALUES ((10, 10), Janos) LAYER 1;
 \end{sql}
 A \texttt{LAYER 1} azt jelenti, hogy a beszúrandó elemek az 1-es rétegre kerüljenek, tehát a \texttt{zlayer} attribútumát 1-re kell állítani, a \texttt{zindexet} pedig az 1-es rétegben lévő következő indexre. Mivel rétegből tetszőleges sok lehet, ezért a kiosztandó indexek rétegenként egyediek.
 
@@ -618,7 +617,7 @@ A távolság számításánál elvi problémát jelent, hogy a nem pontszerű al
 \item az objektum középpontja (valamilyen további definíciónak megfelelően), vagy
 \item az objektumok legközelebbi pontjai
 \end{itemize}
-adhatják a távolságszámítás alapját. A jelenlegi implementációban ez a pont az első esetben szereplő pont.
+adhatják a távolságszámítás alapját. A jelenlegi implementációban ez az első esetben szereplő pont.
 
 Egy objektumtól egy másik objektum távolságát a \texttt{distanceFrom} metódussal tudjuk lekérdezni. Ez egy \texttt{Number} típussal tér vissza.
 
