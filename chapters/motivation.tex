@@ -2,7 +2,7 @@
 
 \section{Domain specifikus nyelvek}
 
-Domain specifikus nyelveknek (\textit{DSL - Domain Specific Language}) azokat nevezzük, amelyeket egy adott, specializált feladatkör problémáinak megoldására hoztak létre. Segítségükkel magasabb absztrakciós szinten lehet a problémákat megfogalmazni. Elrejt alacsony szintű műveleteket, mint például a szükséges modulok explicit kijelölését, az objektumok létrehozásának és lebontásának alacsony szintű műveleteit.
+Domain specifikus nyelveknek (\textit{DSL - Domain Specific Language}) azokat nevezzük, amelyeket egy adott, specializált feladatkör problémáinak megoldására hoztak létre \cite{DSL}. Segítségükkel magasabb absztrakciós szinten lehet a problémákat megfogalmazni. Elrejt alacsony szintű műveleteket, mint például a szükséges modulok explicit kijelölését, az objektumok létrehozásának és lebontásának alacsony szintű műveleteit.
 
 A terület specifikus nyelv az alábbi módokon jelenhet meg.
 
@@ -20,7 +20,7 @@ A nyelv tehát adott problémakörben felmerülő feladatokra ad hatékony megol
 \section{Térképadatbázisok}
 
 A térképadatok kezelési módja jelentősen eltér a hagyományosan táblázatos formában ábrázolható adatokétól. A geoinformatikában gyakran szükség van ilyen adatok nyilvántartására, például földmérés, távérzékelés és egyéb földrajzi adatok esetén. Ahhoz, hogy ez hatékonyan menjen végbe térképadatbázisokat hoztak létre, amelyek sajátos adattípusokat és műveleteket biztosítanak.
-A térinformatikai rendszerek lényege, hogy grafikus (térképi), és nem grafikus (leíró) adatokat együtt képes kezelni.
+A térinformatikai rendszerek lényege, hogy grafikus (térképi), és nem grafikus (leíró) adatokat együtt képes kezelni \cite{KE11}.
 
 A térképen lévő információkat alapvetően kétféle módon lehet tárolni.
 \begin{itemize}
@@ -28,9 +28,9 @@ A térképen lévő információkat alapvetően kétféle módon lehet tárolni.
 \item Vektoros kódolásnál A képet rajzelemek halmazaként tároljuk. Ez a mérnöki tervező rendszerek is gyakran ezt a megoldást alkalmazzák.
 \end{itemize}
 
-Az \textit{Open Geospatial Consortium} egy olyan szervezet, amely számos vállalkozás és cég együttes összefogásából jött létre azért, hogy a térbeli adatkezelés elméleti és gyakorlati kérdéseit tisztázzák, és szabványosítsák. A következőkben röviden bemutatásra kerül az a modell, amit kidolgoztak.
+Az \textit{Open Geospatial Consortium} egy olyan szervezet, amely számos vállalkozás és cég együttes összefogásából jött létre azért, hogy a térbeli adatkezelés elméleti és gyakorlati kérdéseit tisztázzák, és szabványosítsák \cite{OGC}. A következőkben röviden bemutatásra kerül az a modell, amit kidolgoztak.
 
-A térképen szerepeltethető alakzatokat osztályhierarchiába rendezték. Az osztályokhoz metódusok és attribútumok tartozhatnak. Ezen osztályok öröklési hierarchiát alkotnak, tehát a leszármazott osztály örökli az ős metódusait és attribútumait, azokat sajátokkal egészítheti ki. 
+A térképen szerepeltethető alakzatokat osztályhierarchiába rendezték. Az osztályokhoz metódusok és attribútumok tartozhatnak. Ezen osztályok öröklési hierarchiát alkotnak, tehát a leszármazott osztály örökli az ős metódusait és attribútumait, azokat sajátokkal egészítheti ki. Hasonló, objektum alapú felépítést más ajánlásokban is találhatunk \cite{Geo}.
 
 Az OGC osztályhierarchia a következő fontos elemekből áll.
 \begin{itemize}  
@@ -55,7 +55,7 @@ A modell sok olyan elemet tartalmaz, amely a bemutatásra kerülő lekérdezőny
 
 A számítógépes játékok jelentős részében egy virtuálisan létrehozott világot járhatunk be.
 
-A játékfejlesztés során rengeteg olyan probléma felmerül, amely szorosan kötődik a térképekhez. Egy ilyen például az ütközés vizsgálata. Amennyiben nem szeretnénk, hogy a kiterjedéssel rendelkező objektumaink át tudjanak menni egymáson, ellenőrizni kell, hogy ütköznek-e. Erre a játékmotorok biztosítanak bizonyos funkciókat, viszont a játék egyedi vonásai, illetve a jobb teljesítmény érdekében a fejlesztőknek ezen gyakran módosításokat kell végeznie.
+A játékfejlesztés során rengeteg olyan probléma felmerül, amely szorosan kötődik a térképekhez. Egy ilyen például az ütközés vizsgálata. Amennyiben nem szeretnénk, hogy a kiterjedéssel rendelkező objektumaink át tudjanak menni egymáson, ellenőrizni kell, hogy ütköznek-e. Erre a játékmotorok biztosítanak bizonyos funkciókat, viszont a játék egyedi vonásai, illetve a jobb teljesítmény érdekében a fejlesztőknek ezen gyakran módosításokat kell végeznie \cite{GD09}.
 
 Hasonló problémát jelent az útvonalak megtervezése. Ezt úgy érdemes megtenni, hogy az útvonal kikerüli a térképünkön lévő többi objektumot, miközben törekszik arra az algoritmus, hogy ez minél rövidebb legyen. Ez szintén nem triviális feladat, viszont gyakran szükség van rá.
 
