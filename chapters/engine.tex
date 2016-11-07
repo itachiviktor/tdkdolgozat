@@ -14,12 +14,12 @@ Az elsődlegesen megoldandó problémát a térképadatok tárolása jelentette.
 \begin{itemize}
 \item Kidolgozható egy olyan, saját fájlformátum, amely kifejezetten térképadatok hatékony tárolására van specializálva.
 \item A térképadatok kezelésének egy lehetséges módja, hogy azokat egy, már létező adatbázis modelljére képezzük le. Ezzel az adott adatbázismotort, mint kész komponenst lehet alkalmazni.
-\item Az adatok strukturált tárolását XML és JSON formátumok segítségével elegánsan meg lehet oldani.
+\item Az adatok strukturált tárolását XML \cite{XML} és JSON  \cite{JSON} formátumok segítségével elegánsan meg lehet oldani.
 \end{itemize}
 
 A saját fájlformátum kidolgozására, és így a tárolás alacsony szintű megvalósítására azért nem került sor, mert egyelőre annak a belátása a cél, hogy a térképadatbázis funkcióira a gyakorlatban valóban szükség van. A hatékonyság itt tehát még elsősorban a fejlesztők munkáját illetően jelenik meg, nem pedig a futási időkben és a tárigényben.
 
-Egy létező adatbázismotornak a használata az alkalmazásoknak egy plusz külső függőséget jelentene. Az SQLite tünhet még egy szerencsés választásnak ilyen esetben, mivel az függvénykönyvtárként használható. A kialakított objektum-orientált adatbázis modell relációs modellre való leképzése természetesen megoldható lett volna, viszont a fejlesztés közben mutatkozott annál hatékonyabb megoldás.
+Egy létező adatbázismotornak a használata az alkalmazásoknak egy plusz külső függőséget jelentene. Az SQLite \cite{SQLite} tünhet még egy szerencsés választásnak ilyen esetben, mivel az függvénykönyvtárként használható. A kialakított objektum-orientált adatbázis modell relációs modellre való leképzése természetesen megoldható lett volna, viszont a fejlesztés közben mutatkozott annál hatékonyabb megoldás.
 
 Az XML és JSON nyelvek egyaránt alkalmasak a térkép, és a rajta lévő entitások jellemzőinek tárolásához. A JSON azért bizonyult jobb választásnak, mert az adatmodellje közelebb áll a térképadatbázis modelljéhez, feldolgozása egyszerűen megoldható és tárigényben is kisebb költséget jelent.
 
@@ -114,11 +114,12 @@ bg - fc, & ec - ag, & af - eb
 \end{matrix}
 )
 $$
-A $P$ pont Descartes koordinátái ez alapján
+A $P$ pont Descartes koordinátái ez alapján az
 $$
 x = \dfrac{bg - fc}{af - eb}, \quad
 y = \dfrac{ec - ag}{af - eb}
 $$
+összefüggéssel számolható.
 
 \subsection{Interfész az ütközésvizsgálathoz}
 
@@ -138,7 +139,7 @@ lekérdezés csak az $x$ tengely szerinti mozgatást érinti.
 
 \section{Lekérdezés objektumok}
 
-Az adatbázismotorhoz a beérkező lekérdezés szöveges formában kerül át. Ennek a következő lépéseken kell keresztül mennie, hogy az adatbázisban végrehajtásra kerüljön.
+Az adatbázismotorhoz a beérkező lekérdezés szöveges formában kerül át. Ennek a következő lépéseken kell keresztül mennie, hogy az adatbázisban végrehajtásra kerüljön \cite{GD12, AR15}.
 \begin{itemize}
 \item A szöveget a \textit{Tokenizer} komponens tokenekre bontja.
 \item A \textit{Parser} komponens a \texttt{Builder} osztályok használatával lekérdezésobjektumot készít belőle.
